@@ -94,9 +94,12 @@ export class BinarySwitchCCAPI extends CCAPI {
 	/**
 	 * Sets the switch to the given value
 	 * @param targetValue The target value to set
-	 * @param duration The duration after which the target value should be reached. Only supported in V2 and above
+	 * @param duration The duration after which the target value should be reached. Can be a Duration instance or a user-friendly duration string like `"1m17s"`. Only supported in V2 and above.
 	 */
-	public async set(targetValue: boolean, duration?: Duration): Promise<void> {
+	public async set(
+		targetValue: boolean,
+		duration?: Duration | string,
+	): Promise<void> {
 		this.assertSupportsCommand(
 			BinarySwitchCommand,
 			BinarySwitchCommand.Set,
@@ -106,7 +109,7 @@ export class BinarySwitchCCAPI extends CCAPI {
 			nodeId: this.endpoint.nodeId,
 			endpoint: this.endpoint.index,
 			targetValue,
-			duration,
+			duration: Duration.from(duration),
 		});
 		await this.driver.sendCommand(cc, this.commandOptions);
 	}
@@ -114,6 +117,7 @@ export class BinarySwitchCCAPI extends CCAPI {
 	protected [SET_VALUE]: SetValueImplementation = async (
 		{ property },
 		value,
+		options,
 	): Promise<void> => {
 		if (property !== "targetValue") {
 			throwUnsupportedProperty(this.ccId, property);
@@ -121,7 +125,8 @@ export class BinarySwitchCCAPI extends CCAPI {
 		if (typeof value !== "boolean") {
 			throwWrongValueType(this.ccId, property, "boolean", typeof value);
 		}
-		await this.set(value);
+		const duration = Duration.from(options?.transitionDuration);
+		await this.set(value, duration);
 
 		// If the command did not fail, assume that it succeeded and update the currentValue accordingly
 		// so UIs have immediate feedback
@@ -135,12 +140,28 @@ export class BinarySwitchCCAPI extends CCAPI {
 			}
 
 			// Verify the current value after a delay
-			// TODO: #1321
-			const duration = undefined as Duration | undefined;
 			// We query currentValue instead of targetValue to make sure that unsolicited updates cancel the scheduled poll
 			// wotan-disable-next-line no-useless-predicate
 			if (property === "targetValue") property = "currentValue";
 			this.schedulePoll({ property }, duration?.toMilliseconds() ?? 1000);
+		} else if (this.isMulticast()) {
+			if (!this.driver.options.disableOptimisticValueUpdate) {
+				// Figure out which nodes were affected by this command
+				const affectedNodes = this.endpoint.node.physicalNodes.filter(
+					(node) =>
+						node
+							.getEndpoint(this.endpoint.index)
+							?.supportsCC(this.ccId),
+				);
+				// and optimistically update the currentValue
+				for (const node of affectedNodes) {
+					node.valueDB?.setValue(
+						getCurrentValueValueId(this.endpoint.index),
+						value,
+					);
+				}
+			}
+			// For multicasts, do not schedule a refresh - this could cause a LOT of traffic
 		}
 	};
 
@@ -305,6 +326,7 @@ export class BinarySwitchCCReport extends BinarySwitchCC {
 	@ccValueMetadata({
 		...ValueMetadata.Boolean,
 		label: "Target value",
+		valueChangeOptions: ["transitionDuration"],
 	})
 	public get targetValue(): boolean | undefined {
 		return this._targetValue;

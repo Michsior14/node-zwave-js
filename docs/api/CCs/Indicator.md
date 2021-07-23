@@ -1,5 +1,7 @@
 # Indicator CC
 
+?> CommandClass ID: `0x87`
+
 ## Indicator CC methods
 
 ### `get`
@@ -19,9 +21,7 @@ async set(value: number | IndicatorObject[]): Promise<void>;
 ### `getSupported`
 
 ```ts
-async getSupported(
-	indicatorId: number,
-): Promise<
+async getSupported(indicatorId: number): Promise<
 	| {
 			indicatorId?: number;
 			supportedProperties: readonly number[];

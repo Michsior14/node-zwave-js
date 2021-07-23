@@ -1,5 +1,3 @@
-// Popp & Co 700793
-// Power Plug
 {
 	"manufacturer": "Popp & Co",
 	"manufacturerId": "0x0154",
@@ -25,28 +23,8 @@
 	},
 	"paramInformation": {
 		"1": {
-			"label": "Condition after power failure",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 2,
-			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Always Off",
-					"value": 0
-				},
-				{
-					"label": "Always On",
-					"value": 1
-				},
-				{
-					"label": "Last state",
-					"value": 2
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_off_on_prev",
+			"defaultValue": 0
 		}
 	}
 }

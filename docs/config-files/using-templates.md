@@ -19,6 +19,17 @@ where
 
 Both parts are optional, so you can import entire files and you can also build self-referencing templates if you leave out the filesystem path.
 
+Whenever possible, you should prefer using `~/` to navigate to the **config root directory** instead of using varying levels of `../`. This avoids broken references when files are moved around:
+
+```json
+{
+	// Prefer this:
+	"$import": "~/templates/master_template.json#selector",
+	// Over this:
+	"$import": "../../../templates/master_template.json#selector"
+}
+```
+
 Properties listed before the `$import` statement may get overwritten by the imports. Properties listed after it will overwrite the imported properties. You can use this to do device-specific additions without having to change the template as a whole.
 
 > [!ATTENTION]
@@ -122,8 +133,6 @@ For example, commonly used definitions provided by the master template include:
 		"maxValue": 1,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -147,8 +156,6 @@ or
 		"maxValue": 1,
 		"defaultValue": 1,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -171,10 +178,7 @@ or
 		"minValue": 0,
 		"maxValue": 99,
 		"defaultValue": 1,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 ```
 
@@ -200,8 +204,6 @@ or
 		"minValue": 0,
 		"maxValue": 2,
 		"defaultValue": 0,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -236,9 +238,6 @@ Examples:
 		"maxValue": 3,
 		"defaultValue": 2,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "High",
@@ -302,8 +301,6 @@ While you can override a label for an imported template in a device file, we pre
 		"maxValue": 4,
 		"defaultValue": 1,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{

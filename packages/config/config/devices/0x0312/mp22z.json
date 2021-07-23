@@ -1,5 +1,3 @@
-// Minoston MP22Z
-// Z-Wave Outdoor Smart Plug
 {
 	"manufacturer": "Minoston",
 	"manufacturerId": "0x0312",
@@ -24,8 +22,6 @@
 			"maxValue": 3,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -50,9 +46,6 @@
 			"maxValue": 65535,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Disabled",
@@ -68,9 +61,6 @@
 			"maxValue": 65535,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Disabled",
@@ -79,29 +69,8 @@
 			]
 		},
 		"6": {
-			"label": "State After Power Failure",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 2,
-			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
-			"options": [
-				{
-					"label": "Off",
-					"value": 0
-				},
-				{
-					"label": "On",
-					"value": 1
-				},
-				{
-					"label": "Previous State",
-					"value": 2
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_off_on_prev",
+			"defaultValue": 0
 		}
 	},
 	"metadata": {

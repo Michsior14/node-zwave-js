@@ -1,5 +1,3 @@
-// AEON Labs ZW098
-// LED Bulb Gen5
 {
 	"manufacturer": "AEON Labs",
 	"manufacturerId": "0x0086",
@@ -51,10 +49,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"15": {
 			"$if": "firmwareVersion <= 1.5",
@@ -64,13 +59,10 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"20": {
-			"$import": "../templates/master_template.json#state_after_power_failure"
+			"$import": "~/templates/master_template.json#state_after_power_failure_prev_on_off"
 		},
 		"32": {
 			"label": "Color Change Report Type",
@@ -79,8 +71,6 @@
 			"maxValue": 2,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -98,32 +88,32 @@
 			]
 		},
 		"33[0xff]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Blue Color Value",
 			"valueSize": 4,
 			"readOnly": true,
 			"allowManualEntry": false
 		},
 		"33[0xff00]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Green Color Value",
 			"valueSize": 4,
 			"readOnly": true,
 			"allowManualEntry": false
 		},
 		"33[0xff0000]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Red Color Value",
 			"valueSize": 4,
 			"readOnly": true,
 			"allowManualEntry": false
 		},
 		"34": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "External Switch (On/Off)"
 		},
 		"35": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "External Switch (Color)"
 		},
 		"36": {
@@ -133,7 +123,6 @@
 			"maxValue": 3,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
 			"writeOnly": true,
 			"allowManualEntry": false,
 			"options": [
@@ -161,8 +150,6 @@
 			"minValue": 0,
 			"maxValue": 2,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -186,9 +173,6 @@
 			"minValue": 0,
 			"maxValue": 31,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Constant speed",
@@ -201,12 +185,11 @@
 			]
 		},
 		"37[0xff00]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Cycle Count",
 			"description": "Allowable range: 1-254",
 			"valueSize": 4,
 			"defaultValue": 0,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Unlimited",
@@ -219,7 +202,7 @@
 			]
 		},
 		"37[0xff0000]": {
-			"$import": "../templates/master_template.json#base_1-255_nounit",
+			"$import": "~/templates/master_template.json#base_1-255_nounit",
 			"label": "Brightness",
 			"description": "Allowable range: 1-99",
 			"valueSize": 4,
@@ -236,8 +219,6 @@
 			"minValue": 0,
 			"maxValue": 4,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -268,8 +249,6 @@
 			"minValue": 0,
 			"maxValue": 0,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -284,8 +263,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -299,20 +276,20 @@
 			]
 		},
 		"38[0xff]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Pause Time of Off",
 			"description": "Active only in Fade Out/Fade In Transition Style",
 			"valueSize": 4,
 			"defaultValue": 0
 		},
 		"38[0xff00]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Pause Time of On",
 			"valueSize": 4,
 			"defaultValue": 6
 		},
 		"38[0xff0000]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Transition Speed (On to Off)",
 			"description": "Active only in Fade Out/Fade In Transition Style",
 			"valueSize": 4,
@@ -320,24 +297,24 @@
 			"defaultValue": 0
 		},
 		"38[0xff000000]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Transition Speed (Off to On)",
 			"valueSize": 4,
 			"maxValue": 125,
 			"defaultValue": 24
 		},
 		"39[0xff00]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Single Color/Fade Out: Blue Value",
 			"valueSize": 4
 		},
 		"39[0xff0000]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Single Color/Fade Out: Green Value",
 			"valueSize": 4
 		},
 		"39[0xff000000]": {
-			"$import": "../templates/master_template.json#base_0-255_nounit",
+			"$import": "~/templates/master_template.json#base_0-255_nounit",
 			"label": "Single Color/Fade Out: Red Value",
 			"valueSize": 4
 		},
@@ -351,8 +328,6 @@
 			"maxValue": 3,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{

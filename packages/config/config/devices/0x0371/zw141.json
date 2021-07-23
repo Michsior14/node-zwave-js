@@ -1,5 +1,3 @@
-// Aeotec Ltd. ZW141
-// Nano Shutter V.3
 {
 	"manufacturer": "Aeotec Ltd.",
 	"manufacturerId": "0x0371",
@@ -18,7 +16,7 @@
 	},
 	"paramInformation": {
 		"20": {
-			"$import": "../templates/master_template.json#state_after_power_failure",
+			"$import": "~/templates/master_template.json#state_after_power_failure_prev_on_off",
 			"options": [
 				{
 					"label": "Current position",
@@ -41,8 +39,6 @@
 			"maxValue": 3,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -70,10 +66,7 @@
 			"minValue": 10,
 			"maxValue": 32767,
 			"defaultValue": 150,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"35": {
 			"label": "Curtain Trip Time",
@@ -82,10 +75,7 @@
 			"minValue": 500,
 			"maxValue": 32767,
 			"defaultValue": 15000,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"36": {
 			"label": "Enter/Exit Calibration",
@@ -94,8 +84,6 @@
 			"maxValue": 2,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -119,8 +107,6 @@
 			"maxValue": 1,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -137,7 +123,6 @@
 			"defaultValue": 0,
 			"unsigned": true,
 			"readOnly": true,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -173,8 +158,6 @@
 			"maxValue": 1,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -194,7 +177,6 @@
 			"maxValue": 1,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
 			"writeOnly": true,
 			"allowManualEntry": false,
 			"options": [
@@ -212,7 +194,6 @@
 			"defaultValue": 0,
 			"unsigned": true,
 			"readOnly": true,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -232,8 +213,6 @@
 			"maxValue": 2,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -251,7 +230,7 @@
 			]
 		},
 		"80": {
-			"$import": "../0x0086/templates/aeotec_template.json#notification_report_type",
+			"$import": "~/0x0086/templates/aeotec_template.json#notification_report_type",
 			"label": "Command Report Type",
 			"options": [
 				{
@@ -275,8 +254,6 @@
 			"maxValue": 2,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -300,8 +277,6 @@
 			"maxValue": 4,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -333,8 +308,6 @@
 			"maxValue": 4,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -366,9 +339,7 @@
 			"maxValue": 0,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": true,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"readOnly": true
 		},
 		"248": {
 			"label": "External Switch: Network/Reset Functions",
@@ -377,8 +348,6 @@
 			"maxValue": 3,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -396,7 +365,7 @@
 			]
 		},
 		"255": {
-			"$import": "../0x0086/templates/aeotec_template.json#factory_reset_exclude"
+			"$import": "~/0x0086/templates/aeotec_template.json#factory_reset_exclude"
 		}
 	},
 	"metadata": {

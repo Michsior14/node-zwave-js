@@ -1,5 +1,3 @@
-// Fibargroup FGWP102
-// Metered Wall Plug Switch
 {
 	"manufacturer": "Fibargroup",
 	"manufacturerId": "0x010f",
@@ -29,8 +27,6 @@
 			"maxValue": 255,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -44,26 +40,7 @@
 			]
 		},
 		"16": {
-			"label": "Remember device status after power failure",
-			"description": "Define how the plug reacts after the power supply is back on.",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 255,
-			"defaultValue": 1,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Do not remember state",
-					"value": 0
-				},
-				{
-					"label": "Remember state before power failure",
-					"value": 1
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_off_prev"
 		},
 		"34": {
 			"label": "Reaction to alarms",
@@ -71,10 +48,7 @@
 			"valueSize": 1,
 			"minValue": 0,
 			"maxValue": 63,
-			"defaultValue": 63,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 63
 		},
 		"35": {
 			"label": "Response to alarms",
@@ -84,8 +58,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -113,10 +85,7 @@
 			"minValue": 1,
 			"maxValue": 65535,
 			"defaultValue": 600,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"40": {
 			"label": "Immediate power report",
@@ -124,10 +93,7 @@
 			"valueSize": 1,
 			"minValue": 1,
 			"maxValue": 100,
-			"defaultValue": 80,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 80
 		},
 		"42": {
 			"label": "Standard power load report",
@@ -135,10 +101,7 @@
 			"valueSize": 1,
 			"minValue": 1,
 			"maxValue": 100,
-			"defaultValue": 15,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 15
 		},
 		"43": {
 			"label": "Power reporting frequency",
@@ -147,10 +110,7 @@
 			"minValue": 1,
 			"maxValue": 255,
 			"defaultValue": 30,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"45": {
 			"label": "Reporting Changes in energy consumed",
@@ -159,10 +119,7 @@
 			"minValue": 1,
 			"maxValue": 255,
 			"defaultValue": 1,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"47": {
 			"label": "Maximum Time Period between reports",
@@ -171,10 +128,7 @@
 			"minValue": 1,
 			"maxValue": 65534,
 			"defaultValue": 3600,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"49": {
 			"label": "Metering energy consumed by the Wall Plug itself.",
@@ -183,8 +137,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -204,10 +156,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 300,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"51": {
 			"label": "UP value",
@@ -216,10 +165,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 500,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"52": {
 			"label": "Action in case defined power values exceeded",
@@ -229,8 +175,6 @@
 			"maxValue": 255,
 			"defaultValue": 6,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -270,10 +214,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 25000,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"61": {
 			"label": "LED color when device is on",
@@ -282,8 +223,6 @@
 			"maxValue": 255,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -335,8 +274,6 @@
 			"maxValue": 255,
 			"defaultValue": 8,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -384,8 +321,6 @@
 			"maxValue": 255,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -437,10 +372,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 65535,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		}
 	}
 }

@@ -1,5 +1,3 @@
-// Kwikset 912
-// Door Lock
 {
 	"manufacturer": "Kwikset",
 	"manufacturerId": "0x0090",
@@ -10,6 +8,10 @@
 			"productType": "0x0001",
 			"productId": "0x0336",
 			"zwaveAllianceId": [1388, 1393]
+		},
+		{
+			"productType": "0x0003",
+			"productId": "0x0336"
 		},
 		{
 			"productType": "0x0003",

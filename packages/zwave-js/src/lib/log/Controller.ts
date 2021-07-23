@@ -22,7 +22,7 @@ const VALUE_LOGLEVEL = "debug";
 
 interface LogNodeOptions {
 	message: string;
-	level?: "verbose" | "warn" | "error";
+	level?: "debug" | "verbose" | "warn" | "error";
 	direction?: DataDirection;
 	endpoint?: number;
 }
@@ -65,7 +65,7 @@ export class ControllerLogger extends ZWaveLoggerBase {
 	public logNode(
 		nodeId: number,
 		message: string,
-		level?: "verbose" | "warn" | "error",
+		level?: "debug" | "verbose" | "warn" | "error",
 	): void;
 
 	/**
@@ -77,7 +77,7 @@ export class ControllerLogger extends ZWaveLoggerBase {
 	public logNode(
 		nodeId: number,
 		messageOrOptions: string | LogNodeOptions,
-		logLevel?: "verbose" | "warn" | "error",
+		logLevel?: "debug" | "verbose" | "warn" | "error",
 	): void {
 		if (typeof messageOrOptions === "string") {
 			return this.logNode(nodeId, {
@@ -149,11 +149,11 @@ export class ControllerLogger extends ZWaveLoggerBase {
 		switch (change) {
 			case "added":
 				message += `: ${this.formatValue(
-					((args as unknown) as ValueAddedArgs).newValue,
+					(args as unknown as ValueAddedArgs).newValue,
 				)}`;
 				break;
 			case "updated": {
-				const _args = (args as unknown) as ValueUpdatedArgs;
+				const _args = args as unknown as ValueUpdatedArgs;
 				message += `: ${this.formatValue(
 					_args.prevValue,
 				)} => ${this.formatValue(_args.newValue)}`;
@@ -161,12 +161,12 @@ export class ControllerLogger extends ZWaveLoggerBase {
 			}
 			case "removed":
 				message += ` (was ${this.formatValue(
-					((args as unknown) as ValueRemovedArgs).prevValue,
+					(args as unknown as ValueRemovedArgs).prevValue,
 				)})`;
 				break;
 			case "notification":
 				message += `: ${this.formatValue(
-					((args as unknown) as ValueNotificationArgs).value,
+					(args as unknown as ValueNotificationArgs).value,
 				)}`;
 				break;
 		}

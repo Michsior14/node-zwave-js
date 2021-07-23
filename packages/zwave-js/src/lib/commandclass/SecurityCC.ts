@@ -102,9 +102,11 @@ export class SecurityCCAPI extends PhysicalCCAPI {
 			);
 		}
 
-		const cc = new (requestNextNonce
-			? SecurityCCCommandEncapsulationNonceGet
-			: SecurityCCCommandEncapsulation)(this.driver, {
+		const cc = new (
+			requestNextNonce
+				? SecurityCCCommandEncapsulationNonceGet
+				: SecurityCCCommandEncapsulation
+		)(this.driver, {
 			nodeId: this.endpoint.nodeId,
 			encapsulated,
 		});
@@ -200,11 +202,16 @@ export class SecurityCCAPI extends PhysicalCCAPI {
 			command: cc,
 			// Seems we need these options or some nodes won't accept the nonce
 			transmitOptions: TransmitOptions.ACK | TransmitOptions.AutoRoute,
+			// Only try sending a nonce once
+			maxSendAttempts: 1,
 		});
 		try {
 			await this.driver.sendMessage(msg, {
 				...this.commandOptions,
+				// Nonce requests must be handled immediately
 				priority: MessagePriority.Handshake,
+				// We don't want failures causing us to treat the node as asleep or dead
+				changeNodeStatusOnMissingACK: false,
 			});
 		} catch (e) {
 			if (isTransmissionError(e)) {
@@ -276,10 +283,11 @@ export class SecurityCCAPI extends PhysicalCCAPI {
 			nodeId: this.endpoint.nodeId,
 			endpoint: this.endpoint.index,
 		});
-		const response = await this.driver.sendCommand<SecurityCCCommandsSupportedReport>(
-			cc,
-			this.commandOptions,
-		);
+		const response =
+			await this.driver.sendCommand<SecurityCCCommandsSupportedReport>(
+				cc,
+				this.commandOptions,
+			);
 		if (response) {
 			return pick(response, ["supportedCCs", "controlledCCs"]);
 		}
@@ -700,7 +708,7 @@ export class SecurityCCCommandEncapsulation extends SecurityCC {
 	}
 
 	protected computeEncapsulationOverhead(): number {
-		// Supervision CC adds 8 bytes IV, 1 byte frame control, 1 byte nonce ID, 8 bytes MAC
+		// Security CC adds 8 bytes IV, 1 byte frame control, 1 byte nonce ID, 8 bytes MAC
 		return super.computeEncapsulationOverhead() + 18;
 	}
 

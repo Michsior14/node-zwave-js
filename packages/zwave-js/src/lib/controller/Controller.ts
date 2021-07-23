@@ -14,10 +14,12 @@ import {
 	flatMap,
 	getEnumMemberName,
 	JSONObject,
+	Mixin,
 	num2hex,
 	ObjectKeyMap,
 	pick,
 	ReadonlyObjectKeyMap,
+	TypedEventEmitter,
 } from "@zwave-js/shared";
 import { distinct } from "alcalzone-shared/arrays";
 import {
@@ -26,7 +28,6 @@ import {
 } from "alcalzone-shared/deferred-promise";
 import { composeObject } from "alcalzone-shared/objects";
 import { isObject } from "alcalzone-shared/typeguards";
-import { EventEmitter } from "events";
 import type { AssociationCC } from "../commandclass/AssociationCC";
 import type {
 	AssociationGroup,
@@ -45,7 +46,12 @@ import type {
 	EndpointAddress,
 	MultiChannelAssociationCC,
 } from "../commandclass/MultiChannelAssociationCC";
+import {
+	getFirmwareVersionsMetadata,
+	getFirmwareVersionsValueId,
+} from "../commandclass/VersionCC";
 import type { Driver, RequestHandler } from "../driver/Driver";
+import type { StatisticsEventCallbacks } from "../driver/Statistics";
 import { FunctionType } from "../message/Constants";
 import type { Message } from "../message/Message";
 import type { SuccessIndicator } from "../message/SuccessIndicator";
@@ -78,12 +84,42 @@ import {
 	SerialAPISetup_SetTXStatusReportResponse,
 } from "../serialapi/misc/SerialAPISetupMessages";
 import {
+	SetRFReceiveModeRequest,
+	SetRFReceiveModeResponse,
+} from "../serialapi/misc/SetRFReceiveModeMessages";
+import {
+	ExtNVMReadLongBufferRequest,
+	ExtNVMReadLongBufferResponse,
+} from "../serialapi/nvm/ExtNVMReadLongBufferMessages";
+import {
+	ExtNVMReadLongByteRequest,
+	ExtNVMReadLongByteResponse,
+} from "../serialapi/nvm/ExtNVMReadLongByteMessages";
+import {
+	ExtNVMWriteLongBufferRequest,
+	ExtNVMWriteLongBufferResponse,
+} from "../serialapi/nvm/ExtNVMWriteLongBufferMessages";
+import {
+	ExtNVMWriteLongByteRequest,
+	ExtNVMWriteLongByteResponse,
+} from "../serialapi/nvm/ExtNVMWriteLongByteMessages";
+import {
+	GetNVMIdRequest,
+	GetNVMIdResponse,
+	NVMId,
+	nvmSizeToBufferSize,
+} from "../serialapi/nvm/GetNVMIdMessages";
+import {
 	AddNodeStatus,
 	AddNodeToNetworkRequest,
 	AddNodeType,
 } from "./AddNodeToNetworkRequest";
 import { AssignReturnRouteRequest } from "./AssignReturnRouteMessages";
 import { AssignSUCReturnRouteRequest } from "./AssignSUCReturnRouteMessages";
+import {
+	ControllerStatistics,
+	ControllerStatisticsHost,
+} from "./ControllerStatistics";
 import { DeleteReturnRouteRequest } from "./DeleteReturnRouteMessages";
 import { DeleteSUCReturnRouteRequest } from "./DeleteSUCReturnRouteMessages";
 import {
@@ -158,7 +194,8 @@ export type ReadonlyThrowingMap<K, V> = ReadonlyMap<K, V> & {
 };
 
 // Strongly type the event emitter events
-interface ControllerEventCallbacks {
+interface ControllerEventCallbacks
+	extends StatisticsEventCallbacks<ControllerStatistics> {
 	"inclusion failed": () => void;
 	"exclusion failed": () => void;
 	"inclusion started": (secure: boolean) => void;
@@ -175,32 +212,11 @@ interface ControllerEventCallbacks {
 
 export type ControllerEvents = Extract<keyof ControllerEventCallbacks, string>;
 
-export interface ZWaveController {
-	on<TEvent extends ControllerEvents>(
-		event: TEvent,
-		callback: ControllerEventCallbacks[TEvent],
-	): this;
-	once<TEvent extends ControllerEvents>(
-		event: TEvent,
-		callback: ControllerEventCallbacks[TEvent],
-	): this;
-	removeListener<TEvent extends ControllerEvents>(
-		event: TEvent,
-		callback: ControllerEventCallbacks[TEvent],
-	): this;
-	off<TEvent extends ControllerEvents>(
-		event: TEvent,
-		callback: ControllerEventCallbacks[TEvent],
-	): this;
-	removeAllListeners(event?: ControllerEvents): this;
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ZWaveController extends ControllerStatisticsHost {}
 
-	emit<TEvent extends ControllerEvents>(
-		event: TEvent,
-		...args: Parameters<ControllerEventCallbacks[TEvent]>
-	): boolean;
-}
-
-export class ZWaveController extends EventEmitter {
+@Mixin([ControllerStatisticsHost])
+export class ZWaveController extends TypedEventEmitter<ControllerEventCallbacks> {
 	/** @internal */
 	public constructor(private readonly driver: Driver) {
 		super();
@@ -364,6 +380,12 @@ export class ZWaveController extends EventEmitter {
 		return this._nodes;
 	}
 
+	private _healNetworkActive: boolean = false;
+	/** Returns whether the network or a node is currently being healed. */
+	public get isHealNetworkActive(): boolean {
+		return this._healNetworkActive;
+	}
+
 	/** Returns a reference to the (virtual) broadcast node, which allows sending commands to all nodes */
 	public getBroadcastNode(): VirtualNode {
 		return new VirtualNode(
@@ -396,12 +418,13 @@ export class ZWaveController extends EventEmitter {
 
 		// get basic controller version info
 		this.driver.controllerLog.print(`querying version info...`);
-		const version = await this.driver.sendMessage<GetControllerVersionResponse>(
-			new GetControllerVersionRequest(this.driver),
-			{
-				supportCheck: false,
-			},
-		);
+		const version =
+			await this.driver.sendMessage<GetControllerVersionResponse>(
+				new GetControllerVersionRequest(this.driver),
+				{
+					supportCheck: false,
+				},
+			);
 		this._libraryVersion = version.libraryVersion;
 		this._type = version.controllerType;
 		this.driver.controllerLog.print(
@@ -426,12 +449,13 @@ export class ZWaveController extends EventEmitter {
 
 		// find out what the controller can do
 		this.driver.controllerLog.print(`querying controller capabilities...`);
-		const ctrlCaps = await this.driver.sendMessage<GetControllerCapabilitiesResponse>(
-			new GetControllerCapabilitiesRequest(this.driver),
-			{
-				supportCheck: false,
-			},
-		);
+		const ctrlCaps =
+			await this.driver.sendMessage<GetControllerCapabilitiesResponse>(
+				new GetControllerCapabilitiesRequest(this.driver),
+				{
+					supportCheck: false,
+				},
+			);
 		this._isSecondary = ctrlCaps.isSecondary;
 		this._isUsingHomeIdFromOtherNetwork =
 			ctrlCaps.isUsingHomeIdFromOtherNetwork;
@@ -449,12 +473,13 @@ export class ZWaveController extends EventEmitter {
 
 		// find out which part of the API is supported
 		this.driver.controllerLog.print(`querying API capabilities...`);
-		const apiCaps = await this.driver.sendMessage<GetSerialApiCapabilitiesResponse>(
-			new GetSerialApiCapabilitiesRequest(this.driver),
-			{
-				supportCheck: false,
-			},
-		);
+		const apiCaps =
+			await this.driver.sendMessage<GetSerialApiCapabilitiesResponse>(
+				new GetSerialApiCapabilitiesRequest(this.driver),
+				{
+					supportCheck: false,
+				},
+			);
 		this._serialApiVersion = apiCaps.serialApiVersion;
 		this._manufacturerId = apiCaps.manufacturerId;
 		this._productType = apiCaps.productType;
@@ -477,9 +502,10 @@ export class ZWaveController extends EventEmitter {
 			this.driver.controllerLog.print(
 				`querying serial API setup capabilities...`,
 			);
-			const setupCaps = await this.driver.sendMessage<SerialAPISetup_GetSupportedCommandsResponse>(
-				new SerialAPISetup_GetSupportedCommandsRequest(this.driver),
-			);
+			const setupCaps =
+				await this.driver.sendMessage<SerialAPISetup_GetSupportedCommandsResponse>(
+					new SerialAPISetup_GetSupportedCommandsRequest(this.driver),
+				);
 			this._supportedSerialAPISetupCommands = setupCaps.supportedCommands;
 			this.driver.controllerLog.print(
 				`supported serial API setup commands:${this._supportedSerialAPISetupCommands
@@ -492,6 +518,8 @@ export class ZWaveController extends EventEmitter {
 					)
 					.join("")}`,
 			);
+		} else {
+			this._supportedSerialAPISetupCommands = [];
 		}
 
 		// Enable TX status report if supported
@@ -501,11 +529,12 @@ export class ZWaveController extends EventEmitter {
 			)
 		) {
 			this.driver.controllerLog.print(`Enabling TX status report...`);
-			const resp = await this.driver.sendMessage<SerialAPISetup_SetTXStatusReportResponse>(
-				new SerialAPISetup_SetTXStatusReportRequest(this.driver, {
-					enabled: true,
-				}),
-			);
+			const resp =
+				await this.driver.sendMessage<SerialAPISetup_SetTXStatusReportResponse>(
+					new SerialAPISetup_SetTXStatusReportRequest(this.driver, {
+						enabled: true,
+					}),
+				);
 			this.driver.controllerLog.print(
 				`Enabling TX status report ${
 					resp.success ? "successful" : "failed"
@@ -572,9 +601,10 @@ export class ZWaveController extends EventEmitter {
 
 		// Request information about all nodes with the GetInitData message
 		this.driver.controllerLog.print(`querying node information...`);
-		const initData = await this.driver.sendMessage<GetSerialApiInitDataResponse>(
-			new GetSerialApiInitDataRequest(this.driver),
-		);
+		const initData =
+			await this.driver.sendMessage<GetSerialApiInitDataResponse>(
+				new GetSerialApiInitDataRequest(this.driver),
+			);
 		// override the information we might already have
 		this._isSecondary = initData.isSecondary;
 		this._isStaticUpdateController = initData.isStaticUpdateController;
@@ -639,6 +669,15 @@ export class ZWaveController extends EventEmitter {
 		controllerValueDB.setValue(getProductTypeValueId(), this._productType);
 		controllerValueDB.setValue(getProductIdValueId(), this._productId);
 
+		// Set firmware version information for the controller node
+		controllerValueDB.setMetadata(
+			getFirmwareVersionsValueId(),
+			getFirmwareVersionsMetadata(),
+		);
+		controllerValueDB.setValue(getFirmwareVersionsValueId(), [
+			this._serialApiVersion,
+		]);
+
 		if (
 			this.type !== ZWaveLibraryTypes["Bridge Controller"] &&
 			this.isFunctionSupported(FunctionType.SetSerialApiTimeouts)
@@ -647,12 +686,13 @@ export class ZWaveController extends EventEmitter {
 			this.driver.controllerLog.print(
 				`setting serial API timeouts: ack = ${ack} ms, byte = ${byte} ms`,
 			);
-			const resp = await this.driver.sendMessage<SetSerialApiTimeoutsResponse>(
-				new SetSerialApiTimeoutsRequest(this.driver, {
-					ackTimeout: ack,
-					byteTimeout: byte,
-				}),
-			);
+			const resp =
+				await this.driver.sendMessage<SetSerialApiTimeoutsResponse>(
+					new SetSerialApiTimeoutsRequest(this.driver, {
+						ackTimeout: ack,
+						byteTimeout: byte,
+					}),
+				);
 			this.driver.controllerLog.print(
 				`serial API timeouts overwritten. The old values were: ack = ${resp.oldAckTimeout} ms, byte = ${resp.oldByteTimeout} ms`,
 			);
@@ -1035,9 +1075,10 @@ export class ZWaveController extends EventEmitter {
 				// Query the version, so we can setup the wakeup destination correctly.
 				let supportedVersion: number | undefined;
 				if (node.supportsCC(CommandClasses.Version)) {
-					supportedVersion = await node.commandClasses.Version.getCCVersion(
-						CommandClasses["Wake Up"],
-					);
+					supportedVersion =
+						await node.commandClasses.Version.getCCVersion(
+							CommandClasses["Wake Up"],
+						);
 				}
 				// If querying the version can't be done, we should at least assume that it supports V1
 				supportedVersion ??= 1;
@@ -1449,7 +1490,6 @@ export class ZWaveController extends EventEmitter {
 		return true; // Don't invoke any more handlers
 	}
 
-	private _healNetworkActive: boolean = false;
 	private _healNetworkProgress = new Map<number, HealNodeStatus>();
 
 	/**
@@ -1488,43 +1528,107 @@ export class ZWaveController extends EventEmitter {
 		}
 
 		// Do the heal process in the background
-		void (async () => {
-			const tasks = [...this._healNetworkProgress]
-				.filter(([, status]) => status === "pending")
-				.map(async ([nodeId]) => {
-					// await the heal process for each node and treat errors as a non-successful heal
-					const result = await this.healNodeInternal(nodeId).catch(
-						() => false,
-					);
-					if (!this._healNetworkActive) return;
-
-					// Track the success in a map
-					this._healNetworkProgress.set(
-						nodeId,
-						result ? "done" : "failed",
-					);
-					// Notify listeners about the progress
-					this.emit(
-						"heal network progress",
-						new Map(this._healNetworkProgress),
-					);
-				});
-			await Promise.all(tasks);
-			// Only emit the done event when the process wasn't stopped in the meantime
-			if (this._healNetworkActive) {
-				this.emit(
-					"heal network done",
-					new Map(this._healNetworkProgress),
-				);
-			}
-			// We're done!
-			this._healNetworkActive = false;
-		})();
+		void this.healNetwork().catch(() => {
+			/* ignore errors */
+		});
 
 		// And update the progress once at the start
 		this.emit("heal network progress", new Map(this._healNetworkProgress));
 
 		return true;
+	}
+
+	private async healNetwork(): Promise<void> {
+		const pendingNodes = new Set(
+			[...this._healNetworkProgress]
+				.filter(([, status]) => status === "pending")
+				.map(([nodeId]) => nodeId),
+		);
+
+		const todoListening: number[] = [];
+		const todoSleeping: number[] = [];
+
+		const addTodo = (nodeId: number) => {
+			if (pendingNodes.has(nodeId)) {
+				pendingNodes.delete(nodeId);
+				const node = this.nodes.getOrThrow(nodeId);
+				if (node.canSleep) {
+					this.driver.controllerLog.logNode(
+						nodeId,
+						"added to healing queue for sleeping nodes",
+					);
+					todoSleeping.push(nodeId);
+				} else {
+					this.driver.controllerLog.logNode(
+						nodeId,
+						"added to healing queue for listening nodes",
+					);
+					todoListening.push(nodeId);
+				}
+			}
+		};
+
+		// We heal outwards from the controller and start with non-sleeping nodes that are healed one by one
+		try {
+			const neighbors = await this.getNodeNeighbors(this._ownNodeId!);
+			neighbors.forEach((id) => addTodo(id));
+		} catch {
+			// ignore
+		}
+
+		const doHeal = async (nodeId: number) => {
+			// await the heal process for each node and treat errors as a non-successful heal
+			const result = await this.healNodeInternal(nodeId).catch(
+				() => false,
+			);
+			if (!this._healNetworkActive) return;
+
+			// Track the success in a map
+			this._healNetworkProgress.set(nodeId, result ? "done" : "failed");
+			// Notify listeners about the progress
+			this.emit(
+				"heal network progress",
+				new Map(this._healNetworkProgress),
+			);
+
+			// Figure out which nodes to heal next
+			try {
+				const neighbors = await this.getNodeNeighbors(nodeId);
+				neighbors.forEach((id) => addTodo(id));
+			} catch {
+				// ignore
+			}
+		};
+
+		// First try to heal as many nodes as possible one by one
+		while (todoListening.length > 0) {
+			const nodeId = todoListening.shift()!;
+			await doHeal(nodeId);
+			if (!this._healNetworkActive) return;
+		}
+
+		// We might end up with a few unconnected listening nodes, try to heal them too
+		pendingNodes.forEach((nodeId) => addTodo(nodeId));
+		while (todoListening.length > 0) {
+			const nodeId = todoListening.shift()!;
+			await doHeal(nodeId);
+			if (!this._healNetworkActive) return;
+		}
+
+		// Now heal all sleeping nodes at once
+		this.driver.controllerLog.print(
+			"Healing sleeping nodes in parallel. Wake them up to heal.",
+		);
+
+		const tasks = todoSleeping.map((nodeId) => doHeal(nodeId));
+		await Promise.all(tasks);
+
+		// Only emit the done event when the process wasn't stopped in the meantime
+		if (this._healNetworkActive) {
+			this.emit("heal network done", new Map(this._healNetworkProgress));
+		}
+		// We're done!
+		this._healNetworkActive = false;
 	}
 
 	/**
@@ -1541,7 +1645,6 @@ export class ZWaveController extends EventEmitter {
 		this.driver.rejectTransactions(
 			(t) =>
 				t.message instanceof RequestNodeNeighborUpdateRequest ||
-				t.message instanceof GetRoutingInfoRequest ||
 				t.message instanceof DeleteReturnRouteRequest ||
 				t.message instanceof AssignReturnRouteRequest,
 		);
@@ -1557,12 +1660,13 @@ export class ZWaveController extends EventEmitter {
 	 * Returns `true` if the process succeeded, `false` otherwise.
 	 */
 	public async healNode(nodeId: number): Promise<boolean> {
+		// Don't try to heal dead nodes
+		const node = this.nodes.getOrThrow(nodeId);
+
 		// Don't start the process twice
 		if (this._healNetworkActive) return false;
 		this._healNetworkActive = true;
 
-		// Don't try to heal dead nodes
-		const node = this.nodes.getOrThrow(nodeId);
 		if (
 			// The node is known to be dead
 			node.status === NodeStatus.Dead ||
@@ -1587,6 +1691,13 @@ export class ZWaveController extends EventEmitter {
 	}
 
 	private async healNodeInternal(nodeId: number): Promise<boolean> {
+		const node = this.nodes.getOrThrow(nodeId);
+
+		this.driver.controllerLog.logNode(nodeId, {
+			message: `healing node...`,
+			direction: "none",
+		});
+
 		// The healing process consists of four steps
 		// Each step is tried up to 5 times before the healing process is considered failed
 		const maxAttempts = 5;
@@ -1601,11 +1712,12 @@ export class ZWaveController extends EventEmitter {
 				direction: "outbound",
 			});
 			try {
-				const resp = await this.driver.sendMessage<RequestNodeNeighborUpdateReport>(
-					new RequestNodeNeighborUpdateRequest(this.driver, {
-						nodeId,
-					}),
-				);
+				const resp =
+					await this.driver.sendMessage<RequestNodeNeighborUpdateReport>(
+						new RequestNodeNeighborUpdateRequest(this.driver, {
+							nodeId,
+						}),
+					);
 				if (resp.updateStatus === NodeNeighborUpdateStatus.UpdateDone) {
 					this.driver.controllerLog.logNode(nodeId, {
 						message: "neighbor list refreshed...",
@@ -1638,7 +1750,13 @@ export class ZWaveController extends EventEmitter {
 			}
 		}
 
-		// 2. delete all return routes so we can assign new ones
+		// 2. re-create the SUC return route, just in case
+		if (await this.deleteSUCReturnRoute(nodeId)) {
+			node.hasSUCReturnRoute = false;
+		}
+		node.hasSUCReturnRoute = await this.assignSUCReturnRoute(nodeId);
+
+		// 3. delete all return routes so we can assign new ones
 		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 			this.driver.controllerLog.logNode(nodeId, {
 				message: `deleting return routes (attempt ${attempt})...`,
@@ -1668,7 +1786,7 @@ export class ZWaveController extends EventEmitter {
 			}
 		}
 
-		// 3. Assign up to 4 return routes for associations, one of which should be the controller
+		// 4. Assign up to 4 return routes for associations, one of which should be the controller
 		let associatedNodes: number[] = [];
 		const maxReturnRoutes = 4;
 		try {
@@ -1727,6 +1845,11 @@ ${associatedNodes.join(", ")}`,
 				}
 			}
 		}
+
+		this.driver.controllerLog.logNode(nodeId, {
+			message: `healed successfully`,
+			direction: "none",
+		});
 
 		return true;
 	}
@@ -1902,9 +2025,10 @@ ${associatedNodes.join(", ")}`,
 			);
 		}
 		if (endpoint.supportsCC(CommandClasses["Multi Channel Association"])) {
-			mcInstance = endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
-				CommandClasses["Multi Channel Association"],
-			);
+			mcInstance =
+				endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
+					CommandClasses["Multi Channel Association"],
+				);
 		}
 
 		const assocGroupCount = assocInstance.getGroupCountCached() ?? 0;
@@ -1917,11 +2041,16 @@ ${associatedNodes.join(", ")}`,
 			endpoint.supportsCC(CommandClasses["Association Group Information"])
 		) {
 			// We can read all information we need from the AGI CC
-			const agiInstance = endpoint.createCCInstance<AssociationGroupInfoCC>(
-				CommandClasses["Association Group Information"],
-			)!;
+			const agiInstance =
+				endpoint.createCCInstance<AssociationGroupInfoCC>(
+					CommandClasses["Association Group Information"],
+				)!;
 			for (let group = 1; group <= groupCount; group++) {
-				const assocConfig = node.deviceConfig?.associations?.get(group);
+				const assocConfig =
+					node.deviceConfig?.getAssociationConfigForEndpoint(
+						endpointIndex,
+						group,
+					);
 				const multiChannel = !!mcInstance && group <= mcGroupCount;
 				ret.set(group, {
 					maxNodes:
@@ -1946,7 +2075,11 @@ ${associatedNodes.join(", ")}`,
 		} else {
 			// we need to consult the device config
 			for (let group = 1; group <= groupCount; group++) {
-				const assocConfig = node.deviceConfig?.associations?.get(group);
+				const assocConfig =
+					node.deviceConfig?.getAssociationConfigForEndpoint(
+						endpointIndex,
+						group,
+					);
 				const multiChannel = !!mcInstance && group <= mcGroupCount;
 				ret.set(group, {
 					maxNodes:
@@ -2036,9 +2169,10 @@ ${associatedNodes.join(", ")}`,
 
 		// Merge the "normal" destinations with multi channel destinations
 		if (endpoint.supportsCC(CommandClasses["Multi Channel Association"])) {
-			const cc = endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
-				CommandClasses["Multi Channel Association"],
-			)!;
+			const cc =
+				endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
+					CommandClasses["Multi Channel Association"],
+				)!;
 			const destinations = cc.getAllDestinationsCached();
 			for (const [groupId, assocs] of destinations) {
 				if (ret.has(groupId)) {
@@ -2240,9 +2374,10 @@ ${associatedNodes.join(", ")}`,
 			);
 		}
 		if (endpoint.supportsCC(CommandClasses["Multi Channel Association"])) {
-			mcInstance = endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
-				CommandClasses["Multi Channel Association"],
-			);
+			mcInstance =
+				endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
+					CommandClasses["Multi Channel Association"],
+				);
 		} else if (endpointAssociations.length > 0) {
 			throw new ZWaveError(
 				`Node ${nodeAndEndpointString} does not support multi channel associations!`,
@@ -2263,7 +2398,7 @@ ${associatedNodes.join(", ")}`,
 		const groupIsMultiChannel =
 			!!mcInstance &&
 			group <= mcGroupCount &&
-			!node.deviceConfig?.associations?.get(group)?.noEndpoint;
+			node.deviceConfig?.associations?.get(group)?.multiChannel !== false;
 
 		if (groupIsMultiChannel) {
 			// Check that all associations are allowed
@@ -2390,9 +2525,10 @@ ${associatedNodes.join(", ")}`,
 		// Association CC and Multi Channel Association CC
 		if (endpoint.supportsCC(CommandClasses["Multi Channel Association"])) {
 			// Prefer multi channel associations
-			const cc = endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
-				CommandClasses["Multi Channel Association"],
-			)!;
+			const cc =
+				endpoint.createCCInstanceUnsafe<MultiChannelAssociationCC>(
+					CommandClasses["Multi Channel Association"],
+				)!;
 			if (group > cc.getGroupCountCached()) {
 				throw new ZWaveError(
 					`Group ${group} does not exist on node ${nodeAndEndpointString}`,
@@ -2859,5 +2995,198 @@ ${associatedNodes.join(", ")}`,
 				}
 			}
 		}
+	}
+
+	/** Turns the Z-Wave radio on or off */
+	public async toggleRF(enabled: boolean): Promise<boolean> {
+		try {
+			this.driver.controllerLog.print(
+				`Turning RF ${enabled ? "on" : "off"}...`,
+			);
+			const ret = await this.driver.sendMessage<SetRFReceiveModeResponse>(
+				new SetRFReceiveModeRequest(this.driver, { enabled }),
+			);
+			return ret.isOK();
+		} catch (e) {
+			this.driver.controllerLog.print(
+				`Error turning RF ${enabled ? "on" : "off"}: ${e.message}`,
+				"error",
+			);
+			return false;
+		}
+	}
+
+	/** Returns information of the controller's external NVM */
+	public async getNVMId(): Promise<NVMId> {
+		const ret = await this.driver.sendMessage<GetNVMIdResponse>(
+			new GetNVMIdRequest(this.driver),
+		);
+		return pick(ret, ["nvmManufacturerId", "memoryType", "memorySize"]);
+	}
+
+	/** Reads a byte from the external NVM at the given offset */
+	public async externalNVMReadByte(offset: number): Promise<number> {
+		const ret = await this.driver.sendMessage<ExtNVMReadLongByteResponse>(
+			new ExtNVMReadLongByteRequest(this.driver, { offset }),
+		);
+		return ret.byte;
+	}
+
+	/**
+	 * Writes a byte to the external NVM at the given offset
+	 * **WARNING:** This function can write in the full NVM address space and is not offset to start at the application area.
+	 * Take care not to accidentally overwrite the protocol NVM area!
+	 *
+	 * @returns `true` when writing succeeded, `false` otherwise
+	 */
+	public async externalNVMWriteByte(
+		offset: number,
+		data: number,
+	): Promise<boolean> {
+		const ret = await this.driver.sendMessage<ExtNVMWriteLongByteResponse>(
+			new ExtNVMWriteLongByteRequest(this.driver, { offset, byte: data }),
+		);
+		return ret.success;
+	}
+
+	/** Reads a buffer from the external NVM at the given offset */
+	public async externalNVMReadBuffer(
+		offset: number,
+		length: number,
+	): Promise<Buffer> {
+		const ret = await this.driver.sendMessage<ExtNVMReadLongBufferResponse>(
+			new ExtNVMReadLongBufferRequest(this.driver, { offset, length }),
+		);
+		return ret.buffer;
+	}
+
+	/**
+	 * Writes a buffer to the external NVM at the given offset
+	 * **WARNING:** This function can write in the full NVM address space and is not offset to start at the application area.
+	 * Take care not to accidentally overwrite the protocol NVM area!
+	 *
+	 * @returns `true` when writing succeeded, `false` otherwise
+	 */
+	public async externalNVMWriteBuffer(
+		offset: number,
+		buffer: Buffer,
+	): Promise<boolean> {
+		const ret =
+			await this.driver.sendMessage<ExtNVMWriteLongBufferResponse>(
+				new ExtNVMWriteLongBufferRequest(this.driver, {
+					offset,
+					buffer,
+				}),
+			);
+		return ret.success;
+	}
+
+	/**
+	 * Creates a backup of the NVM and returns the raw data as a Buffer. The Z-Wave radio is turned off/on automatically.
+	 * @param onProgress Can be used to monitor the progress of the operation, which may take several seconds up to a few minutes depending on the NVM size
+	 * @returns The raw NVM buffer
+	 */
+	public async backupNVMRaw(
+		onProgress?: (bytesRead: number, total: number) => void,
+	): Promise<Buffer> {
+		// Turn Z-Wave radio off to avoid having the protocol write to the NVM while dumping it
+		if (!(await this.toggleRF(false))) {
+			throw new ZWaveError(
+				"Could not turn off the Z-Wave radio before creating NVM backup!",
+				ZWaveErrorCodes.Controller_ResponseNOK,
+			);
+		}
+
+		const size = nvmSizeToBufferSize((await this.getNVMId()).memorySize);
+		if (!size) {
+			throw new ZWaveError(
+				"Unknown NVM size - cannot backup!",
+				ZWaveErrorCodes.Controller_NotSupported,
+			);
+		}
+
+		const ret = Buffer.allocUnsafe(size);
+		let offset = 0;
+		// Try reading the maximum size at first, the Serial API will return chunks in a size it supports
+		// For some reason, there is no documentation and no official command for this
+		let chunkSize: number = Math.min(0xffff, ret.length);
+		while (offset < ret.length) {
+			const chunk = await this.externalNVMReadBuffer(
+				offset,
+				Math.min(chunkSize, ret.length - offset),
+			);
+			chunk.copy(ret, offset);
+			offset += chunk.length;
+			if (chunkSize > chunk.length) chunkSize = chunk.length;
+
+			// Report progress for listeners
+			if (onProgress) setImmediate(() => onProgress(offset, size));
+		}
+
+		// TODO: You can also get away with eliding all the 0xff pages. The NVR also holds the page size of the NVM (NVMP),
+		// so you can figure out which pages you don't have to save or restore. If you do this, you need to make sure to issue a
+		// "factory reset" before restoring the NVM - that'll blank out the NVM to 0xffs before initializing it.
+
+		// Turn Z-Wave radio back on
+		await this.toggleRF(true);
+
+		return ret;
+	}
+
+	/**
+	 * Restores an NVM backup that was created with `backupNVMRaw`. The Z-Wave radio is turned off/on automatically.
+	 *
+	 * **WARNING:** A failure during this process may brick your controller. Use at your own risk!
+	 * @param nvmData The raw NVM backup to be restored
+	 * @param onProgress Can be used to monitor the progress of the operation, which may take several seconds up to a few minutes depending on the NVM size
+	 */
+	public async restoreNVMRaw(
+		nvmData: Buffer,
+		onProgress?: (bytesWritten: number, total: number) => void,
+	): Promise<void> {
+		// Turn Z-Wave radio off to avoid having the protocol write to the NVM while dumping it
+		if (!(await this.toggleRF(false))) {
+			throw new ZWaveError(
+				"Could not turn off the Z-Wave radio before restoring NVM backup!",
+				ZWaveErrorCodes.Controller_ResponseNOK,
+			);
+		}
+
+		const size = nvmSizeToBufferSize((await this.getNVMId()).memorySize);
+		if (!size) {
+			throw new ZWaveError(
+				"Unknown NVM size - cannot restore!",
+				ZWaveErrorCodes.Controller_NotSupported,
+			);
+		} else if (size !== nvmData.length) {
+			throw new ZWaveError(
+				"The given data does not match the NVM size - cannot restore!",
+				ZWaveErrorCodes.Argument_Invalid,
+			);
+		}
+
+		// TODO: You can also get away with eliding all the 0xff pages. The NVR also holds the page size of the NVM (NVMP),
+		// so you can figure out which pages you don't have to save or restore. If you do this, you need to make sure to issue a
+		// "factory reset" before restoring the NVM - that'll blank out the NVM to 0xffs before initializing it.
+
+		// Figure out the maximum chunk size the Serial API supports
+		// For some reason, there is no documentation and no official command for this
+		// The write requests need 5 bytes more than the read response, so subtract 5 from the returned length
+		const chunkSize =
+			(await this.externalNVMReadBuffer(0, 0xffff)).length - 5;
+
+		for (let offset = 0; offset < nvmData.length; offset += chunkSize) {
+			await this.externalNVMWriteBuffer(
+				offset,
+				nvmData.slice(offset, offset + chunkSize),
+			);
+			// Report progress for listeners
+			if (onProgress) setImmediate(() => onProgress(offset, size));
+		}
+
+		// Turn Z-Wave radio back on
+		await this.toggleRF(true);
+
+		// TODO: Soft Reset
 	}
 }

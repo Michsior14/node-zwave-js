@@ -6,9 +6,6 @@
 		"maxValue": 3,
 		"defaultValue": 2,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "High",
@@ -31,9 +28,6 @@
 		"maxValue": 3,
 		"defaultValue": 2,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "Silent",
@@ -50,17 +44,17 @@
 		]
 	},
 	"auto_relock": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Auto Relock"
 	},
 	"auto_relock_time_180": {
-		"$import": "../../templates/master_template.json#base_0-180_nounit",
+		"$import": "~/templates/master_template.json#base_0-180_nounit",
 		"label": "Auto Relock Time",
 		"unit": "seconds",
 		"defaultValue": 30
 	},
 	"auto_relock_time_127": {
-		"$import": "../../templates/master_template.json#base_0-127_nounit",
+		"$import": "~/templates/master_template.json#base_0-127_nounit",
 		"label": "Auto Relock Time",
 		"unit": "seconds",
 		"minValue": 10,
@@ -74,10 +68,7 @@
 		"minValue": 0,
 		"maxValue": 10,
 		"defaultValue": 5,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"wrong_code_limit_3_to_10": {
 		"label": "Wrong Code Limit",
@@ -86,10 +77,7 @@
 		"minValue": 3,
 		"maxValue": 10,
 		"defaultValue": 5,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"wrong_code_limit_7": {
 		"label": "Wrong Code Limit",
@@ -98,19 +86,16 @@
 		"minValue": 0,
 		"maxValue": 7,
 		"defaultValue": 5,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"wrong_code_lockout": {
-		"$import": "../../templates/master_template.json#base_0-180_nounit",
+		"$import": "~/templates/master_template.json#base_0-180_nounit",
 		"label": "Wrong Code Lockout Time",
 		"unit": "seconds",
 		"defaultValue": 60
 	},
 	"wrong_code_lockout_10_to_127": {
-		"$import": "../../templates/master_template.json#base_0-127_nounit",
+		"$import": "~/templates/master_template.json#base_0-127_nounit",
 		"label": "Wrong Code Lockout Time",
 		"unit": "seconds",
 		"minValue": 10,
@@ -124,10 +109,7 @@
 		"minValue": 1,
 		"maxValue": 20,
 		"defaultValue": 5,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"wrong_tag_lockout": {
 		"label": "Wrong Tag Lockout Time",
@@ -136,10 +118,7 @@
 		"minValue": 1,
 		"maxValue": 250,
 		"defaultValue": 180,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"language": {
 		"label": "Language",
@@ -148,8 +127,6 @@
 		"maxValue": 3,
 		"defaultValue": 1,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -173,8 +150,6 @@
 		"maxValue": 6,
 		"defaultValue": 2,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -202,8 +177,6 @@
 		"maxValue": 2,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -221,15 +194,15 @@
 		]
 	},
 	"one_touch": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "One Touch Locking"
 	},
 	"privacy_button": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Privacy Button"
 	},
 	"lock_status_led": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Lock Status LED"
 	},
 	"reset_factory": {
@@ -239,8 +212,6 @@
 		"maxValue": 1,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -254,23 +225,23 @@
 		]
 	},
 	"door_propped_timer": {
-		"$import": "../../templates/master_template.json#base_0-127_nounit",
+		"$import": "~/templates/master_template.json#base_0-127_nounit",
 		"label": "Door Propped Time Limit",
 		"unit": "10 seconds",
 		"minValue": 10,
 		"defaultValue": 0
 	},
 	"dps_alarm": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Door Propped Alarm"
 	},
 	"enable_dps_alarm": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"label": "Door Propped Alarm",
 		"defaultValue": 1
 	},
 	"deadbolt_installed_state": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Deadbolt Status",
 		"options": [
 			{
@@ -284,26 +255,26 @@
 		]
 	},
 	"eco_mode": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Eco Mode"
 	},
 	"privacy_mode": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Privacy Mode With Deadbolt",
 		"description": "If enabled then extending the deadbolt will put the lock into privacy mode"
 	},
 	"enable_deadbolt_alarm": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"label": "Deadbolt Alarm",
 		"defaultValue": 1
 	},
 	"enable_rotated_alarm": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"label": "Rotated Alarm",
 		"defaultValue": 1
 	},
 	"enable_escape_mode": {
-		"$import": "../../templates/master_template.json#base_enable_disable_255",
+		"$import": "~/templates/master_template.json#base_enable_disable_255",
 		"label": "Escape Return Mode"
 	},
 	"manual_relock_time": {
@@ -314,10 +285,7 @@
 		"minValue": 7,
 		"maxValue": 60,
 		"defaultValue": 7,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"remote_relock_time": {
 		"label": "Remote Relock Time",
@@ -327,10 +295,7 @@
 		"minValue": 10,
 		"maxValue": 90,
 		"defaultValue": 10,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"alarm_map_keypad_limit": {
 		"from": {
@@ -434,6 +399,18 @@
 		"to": {
 			"notificationType": 6, // Access Control
 			"notificationEvent": 9 // Auto lock locked operation
+		}
+	},
+	"alarm_map_rfid_unlock": {
+		"from": {
+			"alarmType": 144
+		},
+		"to": {
+			"notificationType": 6, // Access Control
+			"notificationEvent": 6, // Keypad unlock operation
+			"eventParameters": {
+				"userId": "alarmLevel"
+			}
 		}
 	}
 }

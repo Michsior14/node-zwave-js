@@ -36,6 +36,10 @@ import {
 	EncapsulatingCommandClass,
 	isEncapsulatingCommandClass,
 } from "./EncapsulatingCommandClass";
+import {
+	ICommandClassContainer,
+	isCommandClassContainer,
+} from "./ICommandClassContainer";
 
 export type MulticastDestination = [number, number, ...number[]];
 
@@ -96,7 +100,10 @@ export class CommandClass {
 
 		if (gotDeserializationOptions(options)) {
 			// For deserialized commands, try to invoke the correct subclass constructor
-			const ccCommand = CommandClass.getCCCommand(options.data);
+			const CCConstructor =
+				getCCConstructor(CommandClass.getCommandClass(options.data)) ??
+				CommandClass;
+			const ccCommand = CCConstructor.getCCCommand(options.data);
 			if (ccCommand != undefined) {
 				const CommandConstructor = getCCCommandConstructor(
 					this.ccId,
@@ -137,6 +144,8 @@ export class CommandClass {
 			this.ccCommand = ccCommand;
 			this.payload = payload;
 		}
+
+		if (this instanceof InvalidCC) return;
 
 		if (this.isSinglecast() && this.nodeId !== NODE_ID_BROADCAST) {
 			// For singlecast CCs, set the CC version as high as possible
@@ -249,7 +258,8 @@ export class CommandClass {
 	/**
 	 * Deserializes a CC from a buffer that contains a serialized CC
 	 */
-	private deserialize(data: Buffer) {
+	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+	protected deserialize(data: Buffer) {
 		const ccId = CommandClass.getCommandClass(data);
 		const ccIdLength = this.isExtended() ? 2 : 1;
 		if (data.length > ccIdLength) {
@@ -332,8 +342,41 @@ export class CommandClass {
 	): CommandClass {
 		// Fall back to unspecified command class in case we receive one that is not implemented
 		const Constructor = CommandClass.getConstructor(options.data);
-		const ret = new Constructor(driver, options);
-		return ret;
+		try {
+			const ret = new Constructor(driver, options);
+			return ret;
+		} catch (e: unknown) {
+			// Indicate invalid payloads with a special CC type
+			if (
+				isZWaveError(e) &&
+				e.code === ZWaveErrorCodes.PacketFormat_InvalidPayload
+			) {
+				const nodeId = options.fromEncapsulation
+					? options.encapCC.nodeId
+					: options.nodeId;
+				let ccName: string | undefined;
+				const ccId = CommandClass.getCommandClass(options.data);
+				const ccCommand = CommandClass.getCCCommand(options.data);
+				if (ccCommand != undefined) {
+					ccName = getCCCommandConstructor(ccId, ccCommand)?.name;
+				}
+				// Fall back to the unspecified CC if the command cannot be determined
+				if (!ccName) {
+					ccName = `${getCCName(ccId)} CC`;
+				}
+				// Preserve why the command was invalid
+				let reason: string | undefined;
+				if (typeof e.context === "string") reason = e.context;
+
+				return new InvalidCC(driver, {
+					nodeId,
+					ccId,
+					ccName,
+					reason,
+				});
+			}
+			throw e;
+		}
 	}
 
 	/** Generates a representation of this CC for the log */
@@ -627,11 +670,11 @@ export class CommandClass {
 		// If not specified otherwise, persist all registered values in the value db
 		// But filter out those that don't match the minimum version
 		if (!valueNames) {
-			valueNames = ([
+			valueNames = [
 				...this._registeredCCValues.keys(),
 				...ccValueDefinitions.map(([key]) => key),
 				...keyValuePairs.map(([key]) => key),
-			] as unknown) as (keyof this)[];
+			] as unknown as (keyof this)[];
 		}
 		let db: ValueDB;
 		try {
@@ -657,10 +700,9 @@ export class CommandClass {
 				// This value is one or more key value pair(s) to be stored in a map
 				if (sourceValue instanceof Map) {
 					// Just copy the entries
-					for (const [propertyKey, value] of (sourceValue as Map<
-						string | number,
-						unknown
-					>).entries()) {
+					for (const [propertyKey, value] of (
+						sourceValue as Map<string | number, unknown>
+					).entries()) {
 						db.setValue(
 							{
 								commandClass: cc,
@@ -672,7 +714,7 @@ export class CommandClass {
 						);
 					}
 				} else if (isArray(sourceValue)) {
-					const [propertyKey, value] = (sourceValue as any) as [
+					const [propertyKey, value] = sourceValue as any as [
 						string | number,
 						unknown,
 					];
@@ -792,8 +834,12 @@ export class CommandClass {
 		return undefined; // Only select CCs support to be split
 	}
 
-	/** When a CC supports to be split into multiple partial CCs, this indicates that the last report hasn't been received yet */
-	public expectMoreMessages(): boolean {
+	/**
+	 * When a CC supports to be split into multiple partial CCs, this indicates that the last report hasn't been received yet.
+	 * @param session The previously received set of messages received in this partial CC session
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public expectMoreMessages(session: CommandClass[]): boolean {
 		return false; // By default, all CCs are monolithic
 	}
 
@@ -958,6 +1004,48 @@ export class CommandClass {
 	}
 }
 
+export interface InvalidCCCreationOptions extends CommandClassCreationOptions {
+	ccName: string;
+	reason?: string;
+}
+
+export class InvalidCC extends CommandClass {
+	public constructor(driver: Driver, options: InvalidCCCreationOptions) {
+		super(driver, options);
+		this._ccName = options.ccName;
+		this.reason = options.reason;
+	}
+
+	private _ccName: string;
+	public get ccName(): string {
+		return this._ccName;
+	}
+	public readonly reason?: string;
+
+	public toLogEntry(): MessageOrCCLogEntry {
+		return {
+			tags: [this.ccName, "INVALID"],
+			message: this.reason
+				? {
+						error: this.reason,
+				  }
+				: undefined,
+		};
+	}
+}
+
+export function assertValidCCs(container: ICommandClassContainer): void {
+	if (container.command instanceof InvalidCC) {
+		throw new ZWaveError(
+			"The message payload is invalid!",
+			ZWaveErrorCodes.PacketFormat_InvalidPayload,
+			container.command.reason,
+		);
+	} else if (isCommandClassContainer(container.command)) {
+		assertValidCCs(container.command);
+	}
+}
+
 export type SinglecastCC<T extends CommandClass = CommandClass> = T & {
 	nodeId: number;
 };
@@ -994,7 +1082,7 @@ type APIConstructor = new (
 type TypedClassDecorator<TTarget extends Object> = <
 	// wotan-disable-next-line no-misused-generics
 	T extends TTarget,
-	TConstructor extends new (...args: any[]) => T
+	TConstructor extends new (...args: any[]) => T,
 >(
 	apiClass: TConstructor,
 ) => TConstructor | void;
@@ -1012,7 +1100,7 @@ function getCCCommandMapKey(ccId: CommandClasses, ccCommand: number): string {
  */
 export type DynamicCCResponse<
 	TSent extends CommandClass,
-	TReceived extends CommandClass = CommandClass
+	TReceived extends CommandClass = CommandClass,
 > = (
 	sentCC: TSent,
 ) => Constructable<TReceived> | Constructable<TReceived>[] | undefined;
@@ -1026,7 +1114,7 @@ export type CCResponseRole =
  */
 export type CCResponsePredicate<
 	TSent extends CommandClass,
-	TReceived extends CommandClass = CommandClass
+	TReceived extends CommandClass = CommandClass,
 > = (sentCommand: TSent, receivedCommand: TReceived) => CCResponseRole;
 
 /**
@@ -1042,7 +1130,7 @@ export function commandClass(
 		const map: CommandClassMap =
 			Reflect.getMetadata(METADATA_commandClassMap, CommandClass) ||
 			new Map();
-		map.set(cc, (messageClass as any) as Constructable<CommandClass>);
+		map.set(cc, messageClass as any as Constructable<CommandClass>);
 		Reflect.defineMetadata(METADATA_commandClassMap, map, CommandClass);
 	};
 }
@@ -1140,7 +1228,7 @@ export function getImplementedVersion<T extends CommandClass>(
  * Retrieves the implemented version defined for a Z-Wave command class
  */
 export function getImplementedVersionStatic<
-	T extends Constructable<CommandClass>
+	T extends Constructable<CommandClass>,
 >(classConstructor: T): number {
 	// retrieve the current metadata
 	const ret =
@@ -1159,14 +1247,14 @@ export function CCCommand(command: number): TypedClassDecorator<CommandClass> {
 
 		// also store a map in the Message metadata for lookup.
 		const ccId = getCommandClassStatic(
-			(ccClass as unknown) as typeof CommandClass,
+			ccClass as unknown as typeof CommandClass,
 		);
 		const map: CCCommandMap =
 			Reflect.getMetadata(METADATA_ccCommandMap, CommandClass) ||
 			new Map();
 		map.set(
 			getCCCommandMapKey(ccId, command),
-			(ccClass as unknown) as Constructable<CommandClass>,
+			ccClass as unknown as Constructable<CommandClass>,
 		);
 		Reflect.defineMetadata(METADATA_ccCommandMap, map, CommandClass);
 	};
@@ -1200,7 +1288,7 @@ function getCCCommandConstructor<TBase extends CommandClass>(
 		| CCCommandMap
 		| undefined;
 	if (map != undefined)
-		return (map.get(getCCCommandMapKey(ccId, ccCommand)) as unknown) as
+		return map.get(getCCCommandMapKey(ccId, ccCommand)) as unknown as
 			| Constructable<TBase>
 			| undefined;
 }
@@ -1210,7 +1298,7 @@ function getCCCommandConstructor<TBase extends CommandClass>(
  */
 export function expectedCCResponse<
 	TSent extends CommandClass,
-	TReceived extends CommandClass
+	TReceived extends CommandClass,
 >(
 	cc: Constructable<TReceived> | DynamicCCResponse<TSent, TReceived>,
 	predicate?: CCResponsePredicate<TSent, TReceived>,
@@ -1408,7 +1496,7 @@ export function API(cc: CommandClasses): TypedClassDecorator<CCAPI> {
 		// also store a map in the CCAPI metadata for lookup.
 		const map = (Reflect.getMetadata(METADATA_APIMap, CCAPI) ||
 			new Map()) as APIMap;
-		map.set(cc, (apiClass as any) as APIConstructor);
+		map.set(cc, apiClass as any as APIConstructor);
 		Reflect.defineMetadata(METADATA_APIMap, map, CCAPI);
 	};
 }

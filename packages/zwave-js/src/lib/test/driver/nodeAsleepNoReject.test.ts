@@ -21,6 +21,7 @@ describe("regression tests", () => {
 			ownNodeId: 1,
 			isFunctionSupported: isFunctionSupported_NoBridge,
 			nodes: new Map(),
+			incrementStatistics: () => {},
 		} as any;
 	});
 
@@ -102,12 +103,16 @@ describe("regression tests", () => {
 
 		// And the order should be correct
 		expect(
-			((sendQueue.get(0)?.message as SendDataRequest)
-				.command as BasicCCSet).targetValue,
+			(
+				(sendQueue.get(0)?.message as SendDataRequest)
+					.command as BasicCCSet
+			).targetValue,
 		).toBe(99);
 		expect(
-			((sendQueue.get(1)?.message as SendDataRequest)
-				.command as BasicCCSet).targetValue,
+			(
+				(sendQueue.get(1)?.message as SendDataRequest)
+					.command as BasicCCSet
+			).targetValue,
 		).toBe(50);
 	});
 });

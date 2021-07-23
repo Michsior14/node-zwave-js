@@ -1,5 +1,3 @@
-// McoHome Technology Co., Ltd. MH-S513
-// Touch Panel Switch 3-Way
 {
 	"manufacturer": "McoHome Technology Co., Ltd.",
 	"manufacturerId": "0x015f",
@@ -17,24 +15,7 @@
 	},
 	"paramInformation": {
 		"2": {
-			"label": "Restore State After Power Failure",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 1,
-			"defaultValue": 1,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Disable",
-					"value": 0
-				},
-				{
-					"label": "Enable",
-					"value": 1
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_off_prev"
 		},
 		"3": {
 			"label": "All On / All Off",
@@ -43,8 +24,6 @@
 			"maxValue": 255,
 			"defaultValue": 255,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -70,10 +49,7 @@
 			"valueSize": 1,
 			"minValue": 0,
 			"maxValue": 10,
-			"defaultValue": 10,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 10
 		},
 		"5": {
 			"label": "Key Mode",
@@ -81,8 +57,6 @@
 			"minValue": 0,
 			"maxValue": 6,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -122,10 +96,7 @@
 			"minValue": 0,
 			"maxValue": 65535,
 			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"8": {
 			"label": "Basic CC Integration Setting",
@@ -134,8 +105,6 @@
 			"maxValue": 3,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -163,8 +132,6 @@
 			"maxValue": 6,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -204,8 +171,6 @@
 			"maxValue": 6,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -245,8 +210,6 @@
 			"maxValue": 6,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -285,8 +248,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -305,8 +266,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -325,8 +284,6 @@
 			"minValue": 0,
 			"maxValue": 7,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -369,8 +326,6 @@
 			"minValue": 0,
 			"maxValue": 3,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -398,9 +353,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Scene activation disabled",
@@ -416,9 +368,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Instant",
@@ -432,8 +381,6 @@
 			"minValue": 0,
 			"maxValue": 3,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -461,9 +408,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Scene activation disabled",
@@ -479,9 +423,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Instant",
@@ -495,8 +436,6 @@
 			"minValue": 0,
 			"maxValue": 3,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -524,9 +463,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Scene activation disabled",
@@ -542,9 +478,6 @@
 			"maxValue": 255,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Instant",
@@ -559,7 +492,6 @@
 			"maxValue": 85,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
 			"writeOnly": true,
 			"allowManualEntry": false,
 			"options": [

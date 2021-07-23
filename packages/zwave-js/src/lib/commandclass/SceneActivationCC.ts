@@ -57,18 +57,14 @@ export enum SceneActivationCommand {
 @API(CommandClasses["Scene Activation"])
 export class SceneActivationCCAPI extends CCAPI {
 	public supportsCommand(_cmd: SceneActivationCommand): Maybe<boolean> {
-		// There is only one command
+		// There is only one mandatory command
 		return true;
-		// switch (cmd) {
-		// 	case SceneActivationCommand.Set:
-		// 		return true; // This is mandatory
-		// }
-		// return super.supportsCommand(cmd);
 	}
 
 	protected [SET_VALUE]: SetValueImplementation = async (
 		{ property },
 		value,
+		options,
 	): Promise<void> => {
 		if (property !== "sceneId") {
 			throwUnsupportedProperty(this.ccId, property);
@@ -76,12 +72,17 @@ export class SceneActivationCCAPI extends CCAPI {
 		if (typeof value !== "number") {
 			throwWrongValueType(this.ccId, property, "number", typeof value);
 		}
-		await this.set(value);
+		const duration = Duration.from(options?.transitionDuration);
+		await this.set(value, duration);
 	};
 
+	/**
+	 * Activates the Scene with the given ID
+	 * @param duration The duration specifying how long the transition should take. Can be a Duration instance or a user-friendly duration string like `"1m17s"`.
+	 */
 	public async set(
 		sceneId: number,
-		dimmingDuration?: Duration,
+		dimmingDuration?: Duration | string,
 	): Promise<void> {
 		this.assertSupportsCommand(
 			SceneActivationCommand,
@@ -92,7 +93,7 @@ export class SceneActivationCCAPI extends CCAPI {
 			nodeId: this.endpoint.nodeId,
 			endpoint: this.endpoint.index,
 			sceneId,
-			dimmingDuration,
+			dimmingDuration: Duration.from(dimmingDuration),
 		});
 		await this.driver.sendCommand(cc, this.commandOptions);
 	}
@@ -136,6 +137,7 @@ export class SceneActivationCCSet extends SceneActivationCC {
 		...ValueMetadata.UInt8,
 		min: 1,
 		label: "Scene ID",
+		valueChangeOptions: ["transitionDuration"],
 	})
 	public sceneId: number;
 

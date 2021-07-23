@@ -1,5 +1,3 @@
-// Yale YRD110
-// Key-Free Push-Button Deadbolt
 {
 	"manufacturer": "Yale",
 	"manufacturerId": "0x0129",
@@ -18,8 +16,7 @@
 	},
 	"associations": {
 		"1": {
-			"label": "Receive Alarms",
-			"description": "Group that will receive alarm notices from the lock",
+			"label": "Lifeline",
 			"maxNodes": 5,
 			"isLifeline": true
 		}

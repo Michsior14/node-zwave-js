@@ -1,5 +1,3 @@
-// Yale YRD226 / YRC226 / YRC246 / YRD256 / YRC256 / YRD446
-// Assure Touchscreen Deadbolt
 {
 	"manufacturer": "Yale",
 	"manufacturerId": "0x0129",
@@ -37,7 +35,7 @@
 			"$import": "templates/yale_template.json#language"
 		},
 		"6": {
-			"$import": "../templates/master_template.json#base_enable_disable_255",
+			"$import": "~/templates/master_template.json#base_enable_disable_255",
 			"label": "Radio Event Reporting"
 		},
 		"7": {

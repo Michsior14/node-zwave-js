@@ -1,5 +1,3 @@
-// EcoDim ECO-DIM
-// ECO-DIM Z-Wave Led dimmer
 {
 	"manufacturer": "EcoDim",
 	"manufacturerId": "0x0431",
@@ -41,30 +39,8 @@
 	},
 	"paramInformation": {
 		"1": {
-			"label": "State After Power Restored",
-			"description": "The state the switch should return to once power is restored after power failure.",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 2,
-			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Off",
-					"value": 0
-				},
-				{
-					"label": "On",
-					"value": 1
-				},
-				{
-					"label": "Returns to level before Power Outage",
-					"value": 2
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_off_on_prev",
+			"defaultValue": 0
 		},
 		"2": {
 			"label": "Notification when Load status change",
@@ -74,8 +50,6 @@
 			"maxValue": 2,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -100,10 +74,7 @@
 			"minValue": 0,
 			"maxValue": 100,
 			"defaultValue": 5,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"5": {
 			"label": "Enable or Disable external switch to pair network",
@@ -112,8 +83,6 @@
 			"maxValue": 1,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -134,8 +103,6 @@
 			"maxValue": 1,
 			"defaultValue": 0,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -155,10 +122,7 @@
 			"minValue": 0,
 			"maxValue": 99,
 			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		},
 		"8": {
 			"label": "Turn off delay",
@@ -168,10 +132,7 @@
 			"minValue": 0,
 			"maxValue": 60,
 			"defaultValue": 0,
-			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unsigned": true
 		}
 	}
 }

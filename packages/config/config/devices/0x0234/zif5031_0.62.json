@@ -1,5 +1,3 @@
-// Logic Group ZIF5031
-// DIN Rail Interface
 {
 	"manufacturer": "Logic Group",
 	"manufacturerId": "0x0234",
@@ -46,19 +44,19 @@
 			"$import": "templates/logic_group_template.json#led_brightness"
 		},
 		"3": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "Input 1 - Thermistor"
 		},
 		"4": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "Input 2 - Thermistor"
 		},
 		"5": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "Input 3 - Thermistor"
 		},
 		"6": {
-			"$import": "../templates/master_template.json#base_enable_disable",
+			"$import": "~/templates/master_template.json#base_enable_disable",
 			"label": "Input 4 - Thermistor"
 		},
 		"7": {

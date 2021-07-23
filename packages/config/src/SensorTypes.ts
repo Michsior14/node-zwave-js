@@ -6,17 +6,26 @@ import { pathExists, readFile } from "fs-extra";
 import JSON5 from "json5";
 import path from "path";
 import type { ConfigManager } from "./ConfigManager";
-import { Scale } from "./Scales";
-import { configDir, hexKeyRegexNDigits, throwInvalidConfig } from "./utils";
-
-const configPath = path.join(configDir, "sensorTypes.json");
+import { Scale, ScaleGroup } from "./Scales";
+import {
+	configDir,
+	externalConfigDir,
+	hexKeyRegexNDigits,
+	throwInvalidConfig,
+} from "./utils";
 
 export type SensorTypeMap = ReadonlyMap<number, SensorType>;
 
 /** @internal */
 export async function loadSensorTypesInternal(
 	manager: ConfigManager,
+	externalConfig?: boolean,
 ): Promise<SensorTypeMap> {
+	const configPath = path.join(
+		(externalConfig && externalConfigDir()) || configDir,
+		"sensorTypes.json",
+	);
+
 	if (!(await pathExists(configPath))) {
 		throw new ZWaveError(
 			"The sensor types config file does not exist!",
@@ -39,7 +48,7 @@ export async function loadSensorTypesInternal(
 			if (!hexKeyRegexNDigits.test(key)) {
 				throwInvalidConfig(
 					"sensor types",
-					`found non-hex key "${key}" at the root`,
+					`found invalid key "${key}" at the root. Sensor types must have lowercase hexadecimal IDs.`,
 				);
 			}
 			const keyNum = parseInt(key.slice(2), 16);
@@ -106,9 +115,9 @@ export class SensorType {
 				if (!hexKeyRegexNDigits.test(scaleKey))
 					throwInvalidConfig(
 						"sensor types",
-						`found non-hex key "${scaleKey}" in sensor type ${num2hex(
+						`found invalid key "${scaleKey}" in sensor type ${num2hex(
 							key,
-						)}`,
+						)}. Sensor  scales must have lowercase hexadecimal IDs.`,
 					);
 				const scaleKeyNum = parseInt(scaleKey.slice(2), 16);
 				scales.set(
@@ -122,5 +131,5 @@ export class SensorType {
 
 	public readonly key: number;
 	public readonly label: string;
-	public readonly scales: ReadonlyMap<number, Scale>;
+	public readonly scales: ScaleGroup;
 }

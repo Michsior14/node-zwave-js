@@ -1,5 +1,3 @@
-// Kwikset 910
-// Smart Code with Home Connect Technology
 {
 	"manufacturer": "Kwikset",
 	"manufacturerId": "0x0090",
@@ -20,6 +18,10 @@
 			"productType": "0x0003",
 			"productId": "0x0238",
 			"zwaveAllianceId": [2003, 2239]
+		},
+		{
+			"productType": "0x0003",
+			"productId": "0x0000"
 		}
 	],
 	"firmwareVersion": {

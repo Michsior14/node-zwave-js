@@ -56,3 +56,15 @@ autoLabel:
     only: true # Whether non-matching files should be allowed
     remove: false # Whether to remove the label if the rule no longer applies
     label: 'config ⚙' # Which label to add/remove
+
+# Whitelist which workflows from forks may be auto-approved:
+approveWorkflow:
+  files:
+    - 'packages/config/config/**/*.json' # Config file changes
+    - '*.md' # root-level markdown files
+    - 'docs/**/*.md' # Documentation
+    - 'docs/index.html' # Also documentation
+    - 'packages/config/config/README.md' # more documentation
+  # Careful, whitelisted users have higher precedence than files
+  users:
+    - sybohy

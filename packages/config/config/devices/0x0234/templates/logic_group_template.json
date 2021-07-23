@@ -1,28 +1,28 @@
 {
 	"enable_central_scene": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"label": "Central Scene",
 		"defaultValue": 1
 	},
 	"multilevel_enable": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"valueSize": 4,
 		"defaultValue": 1
 	},
 	"multilevel_upper_function": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Upper Switch Value",
 		"valueSize": 4,
 		"defaultValue": 255
 	},
 	"multilevel_lower_function": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Lower Switch Value",
 		"valueSize": 4,
 		"defaultValue": 0
 	},
 	"multilevel_duration_function": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Duration",
 		"description": "Values 1-127 = seconds; 128-255 = minutes (minus 127)",
 		"valueSize": 4
@@ -33,10 +33,7 @@
 		"unit": "1 ms",
 		"minValue": 1,
 		"maxValue": 1000,
-		"defaultValue": 400,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"defaultValue": 400
 	},
 	"button_held_threshold_time": {
 		"label": "Button Held Threshold Time",
@@ -44,10 +41,7 @@
 		"unit": "1 ms",
 		"minValue": 1,
 		"maxValue": 5000,
-		"defaultValue": 600,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"defaultValue": 600
 	},
 	"led_indicator_zba7140": {
 		"label": "LED Mode",
@@ -56,8 +50,6 @@
 		"maxValue": 2,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -81,8 +73,6 @@
 		"maxValue": 3,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -104,7 +94,7 @@
 		]
 	},
 	"global_brightness": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "LED Indicator Brightness",
 		"valueSize": 4,
 		"defaultValue": 255
@@ -116,8 +106,6 @@
 		"maxValue": 2,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -135,13 +123,13 @@
 		]
 	},
 	"dimming_duration": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Duration of Dimming",
 		"unit": "seconds",
 		"defaultValue": 5
 	},
 	"duration_on_off": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Duration of On/Off",
 		"defaultValue": 0
 	},
@@ -152,8 +140,6 @@
 		"maxValue": 2,
 		"defaultValue": 1,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -171,29 +157,29 @@
 		]
 	},
 	"dimmer_min": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Dimmer: Minimum Level",
 		"defaultValue": 0
 	},
 	"dimmer_max": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Dimmer: Maximum Level",
 		"defaultValue": 99
 	},
 	"dimmer_metering": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Meter Report Time",
 		"defaultValue": 60
 	},
 	"led_indicator": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Button LED Indicator",
 		"unsigned": true,
 		"valueSize": 4,
 		"defaultValue": 0
 	},
 	"button_led_indicator": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Button LED Indicator",
 		"maxValue": 7,
 		"defaultValue": 7,
@@ -232,8 +218,6 @@
 		"maxValue": 2,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -256,8 +240,6 @@
 		"maxValue": 4,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -283,7 +265,7 @@
 		]
 	},
 	"input_funtion_relay": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Input - Function",
 		"maxValue": 3,
 		"defaultValue": 3,
@@ -308,7 +290,7 @@
 		]
 	},
 	"output_function_relay": {
-		"$import": "../../templates/master_template.json#base_enable_disable",
+		"$import": "~/templates/master_template.json#base_enable_disable",
 		"label": "Output - Function",
 		"options": [
 			{
@@ -322,7 +304,7 @@
 		]
 	},
 	"status_led": {
-		"$import": "../../templates/master_template.json#led_indicator_four_options",
+		"$import": "~/templates/master_template.json#led_indicator_four_options",
 		"label": "Status of LED",
 		"defaultValue": 1,
 		"options": [
@@ -350,8 +332,6 @@
 		"minValue": 0,
 		"maxValue": 5,
 		"defaultValue": 1,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -387,10 +367,7 @@
 		"minValue": 0,
 		"maxValue": 6,
 		"defaultValue": 3,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"input_precision": {
 		//number of decimal points
@@ -399,10 +376,7 @@
 		"minValue": 0,
 		"maxValue": 7,
 		"defaultValue": 0,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"pulse_unit": {
 		"label": "Input 5: Pulses Per Unit",
@@ -410,10 +384,7 @@
 		"minValue": 0,
 		"maxValue": 65000,
 		"defaultValue": 1,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"rate_type": {
 		"label": "Input: Rate Type",
@@ -422,8 +393,6 @@
 		"maxValue": 2,
 		"defaultValue": 1,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -447,18 +416,15 @@
 		"minValue": 0,
 		"maxValue": 8640,
 		"defaultValue": 90,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"led_brightness": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Brightness of Status LED",
 		"defaultValue": 50
 	},
 	"input_calibration": {
-		"$import": "../../templates/master_template.json#base_0-99_nounit",
+		"$import": "~/templates/master_template.json#base_0-99_nounit",
 		"label": "Input: Calibration",
 		"unit": "0.1 °C",
 		"minValue": -40,
@@ -473,10 +439,7 @@
 		"minValue": 0,
 		"maxValue": 8640,
 		"defaultValue": 6,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	},
 	"input_function_setup": {
 		"label": "Input: Function",
@@ -485,9 +448,6 @@
 		"maxValue": 6,
 		"defaultValue": 3,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "Level-controlled, NO",
@@ -516,15 +476,55 @@
 		]
 	},
 	"button_debounce": {
-		"$import": "../../templates/master_template.json#base_1-255_nounit",
+		"$import": "~/templates/master_template.json#base_1-255_nounit",
 		"label": "Button Debounce Timer",
 		"unit": "10 ms",
 		"valueSize": 1,
 		"defaultValue": 5
 	},
 	"input_timer": {
-		"$import": "../../templates/master_template.json#base_0-255_nounit",
+		"$import": "~/templates/master_template.json#base_0-255_nounit",
 		"label": "Input: Timer",
 		"defaultValue": 0
+	},
+	"watt_threshold_change": {
+		"label": "Power Change Threshold",
+		"valueSize": 2,
+		"unit": "W",
+		"minValue": 0,
+		"maxValue": 500,
+		"defaultValue": 50,
+		"unsigned": true
+	},
+	"power_overload_limit": {
+		"label": "Power Overload Limit",
+		"valueSize": 2,
+		"unit": "W",
+		"minValue": 0,
+		"maxValue": 3000,
+		"defaultValue": 2900,
+		"unsigned": true
+	},
+	"led_power_consumption_mode": {
+		"label": "LED Mode",
+		"valueSize": 1,
+		"minValue": 0,
+		"maxValue": 2,
+		"defaultValue": 0,
+		"allowManualEntry": false,
+		"options": [
+			{
+				"label": "Basic",
+				"value": 0
+			},
+			{
+				"label": "Power consumption indicator",
+				"value": 1
+			},
+			{
+				"label": "LED set by parameters 6 and 7",
+				"value": 2
+			}
+		]
 	}
 }

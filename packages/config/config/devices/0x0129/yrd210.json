@@ -1,5 +1,3 @@
-// Yale YRD210
-// Push Button Deadbolt
 {
 	"manufacturer": "Yale",
 	"manufacturerId": "0x0129",
@@ -26,7 +24,7 @@
 	},
 	"associations": {
 		"1": {
-			"label": "Alarm Reports",
+			"label": "Lifeline",
 			"maxNodes": 4,
 			"isLifeline": true
 		}

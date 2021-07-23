@@ -1,5 +1,9 @@
 // @ts-check
 
+// Enable Yarn PnP
+// @ts-expect-error 🤷🏻‍♂️
+require("../../../.pnp.cjs").setup();
+
 const exec = require("@actions/exec");
 const github = require("@actions/github");
 const core = require("@actions/core");
@@ -7,7 +11,7 @@ const core = require("@actions/core");
 const githubToken = core.getInput("githubToken");
 const npmToken = core.getInput("npmToken");
 const task = core.getInput("task");
-const octokit = github.getOctokit(githubToken);
+const octokit = github.getOctokit(githubToken).rest;
 const semver = require("semver");
 
 const options = {
@@ -20,7 +24,7 @@ if (task === "publish-pr") {
 }
 
 async function publishPr() {
-	const pr = core.getInput("pr");
+	const pr = parseInt(core.getInput("pr"));
 	const { data: pull } = await octokit.pulls.get({
 		...options,
 		pull_number: pr,
@@ -30,7 +34,7 @@ async function publishPr() {
 	let newVersion;
 	try {
 		// Build it
-		await exec.exec("yarn", ["run", "build:full"]);
+		await exec.exec("yarn", ["run", "build"]);
 
 		// Configure git
 		await exec.exec("git", ["config", "user.email", "bot@zwave-js.io"]);
@@ -51,14 +55,14 @@ async function publishPr() {
 
 		// Bump versions
 		await exec.exec(
-			"npx",
+			"yarn",
 			`lerna version ${newVersion} --exact --allow-branch * --ignore-scripts --no-commit-hooks --yes`.split(
 				" ",
 			),
 		);
 
 		// and release
-		await exec.exec("npx", [
+		await exec.exec("yarn", [
 			"lerna",
 			"publish",
 			"from-package",

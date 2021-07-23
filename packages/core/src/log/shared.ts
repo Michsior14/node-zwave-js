@@ -1,14 +1,12 @@
 import { DeepPartial, flatMap } from "@zwave-js/shared";
+import DailyRotateFile from "@zwave-js/winston-daily-rotate-file";
 import { padStart } from "alcalzone-shared/strings";
 import type { Format, TransformableInfo, TransformFunction } from "logform";
 import * as path from "path";
 import { configs, MESSAGE } from "triple-beam";
 import winston, { Logger } from "winston";
 import type Transport from "winston-transport";
-import type {
-	ConsoleTransportInstance,
-	FileTransportInstance,
-} from "winston/lib/winston/transports";
+import type { ConsoleTransportInstance } from "winston/lib/winston/transports";
 import { colorizer } from "./Colorizer";
 
 const { combine, timestamp, label } = winston.format;
@@ -108,7 +106,7 @@ function stringToNodeList(nodes?: string): number[] | undefined {
 }
 
 export class ZWaveLogContainer extends winston.Container {
-	private fileTransport: FileTransportInstance | undefined;
+	private fileTransport: DailyRotateFile | undefined;
 	private consoleTransport: ConsoleTransportInstance | undefined;
 	private loglevelVisibleCache = new Map<string, boolean>();
 
@@ -121,9 +119,9 @@ export class ZWaveLogContainer extends winston.Container {
 		filename: require.main
 			? path.join(
 					path.dirname(require.main.filename),
-					`zwave-${process.pid}.log`,
+					`zwavejs_%DATE%.log`,
 			  )
-			: path.join(__dirname, "../../..", `zwave-${process.pid}.log`),
+			: path.join(__dirname, "../../..", `zwave_%DATE%.log`),
 		forceConsole: false,
 	};
 
@@ -143,7 +141,7 @@ export class ZWaveLogContainer extends winston.Container {
 			});
 		}
 
-		return (this.get(label) as unknown) as ZWaveLogger;
+		return this.get(label) as unknown as ZWaveLogger;
 	}
 
 	public updateConfiguration(config: DeepPartial<LogConfig>): void {
@@ -159,6 +157,12 @@ export class ZWaveLogContainer extends winston.Container {
 		const changedLogLevel =
 			config.level != undefined && config.level !== this.logConfig.level;
 
+		if (
+			config.filename != undefined &&
+			!config.filename.includes("%DATE%")
+		) {
+			config.filename += "_%DATE%.log";
+		}
 		const changedFilename =
 			config.filename != undefined &&
 			config.filename !== this.logConfig.filename;
@@ -242,8 +246,6 @@ export class ZWaveLogContainer extends winston.Container {
 		const ret: Transport[] = [];
 		if (this.logConfig.enabled && this.logConfig.logToFile) {
 			if (!this.fileTransport) {
-				console.log(`Logging to file:
-	${this.logConfig.filename}`);
 				this.fileTransport = this.createFileTransport();
 			}
 			ret.push(this.fileTransport);
@@ -278,12 +280,20 @@ export class ZWaveLogContainer extends winston.Container {
 		return !this.logConfig.enabled;
 	}
 
-	private createFileTransport(): FileTransportInstance {
-		return new winston.transports.File({
+	private createFileTransport(): DailyRotateFile {
+		const ret = new DailyRotateFile({
 			filename: this.logConfig.filename,
+			datePattern: "YYYY-MM-DD",
+			zippedArchive: true,
+			maxFiles: "7d",
 			format: createDefaultTransportFormat(false, false),
 			silent: this.isFileTransportSilent(),
 		});
+		ret.on("new", (newFilename: string) => {
+			console.log(`Logging to file:
+	${newFilename}`);
+		});
+		return ret;
 	}
 
 	/**
@@ -321,7 +331,7 @@ export function createLoggerFormat(channel: string): Format {
 /** Prints a formatted and colorized log message */
 export function createLogMessagePrinter(shortTimestamps: boolean): Format {
 	return {
-		transform: (((info: ZWaveLogInfo) => {
+		transform: ((info: ZWaveLogInfo) => {
 			// The formatter has already split the message into multiple lines
 			const messageLines = messageToLines(info.message);
 			// Also this can only happen if the user forgot to call the formatter first
@@ -364,13 +374,13 @@ export function createLogMessagePrinter(shortTimestamps: boolean): Format {
 			}
 			info[MESSAGE as any] = lines.join("\n");
 			return info;
-		}) as unknown) as TransformFunction,
+		}) as unknown as TransformFunction,
 	};
 }
 
 /** Formats the log message and calculates the necessary paddings */
 export const logMessageFormatter: Format = {
-	transform: (((info: ZWaveLogInfo) => {
+	transform: ((info: ZWaveLogInfo) => {
 		const messageLines = messageToLines(info.message);
 		const firstMessageLineLength = messageLines[0].length;
 		info.multiline =
@@ -410,7 +420,7 @@ export const logMessageFormatter: Format = {
 			info.message = lines.join("\n");
 		}
 		return info;
-	}) as unknown) as TransformFunction,
+	}) as unknown as TransformFunction,
 };
 
 /** The common logger format for built-in transports */

@@ -122,6 +122,7 @@ describe("readJsonWithTemplate", () => {
 			".json",
 			"#",
 			"file.json#",
+			"#30[0x]", // incomplete partial param
 		];
 		for (const specifier of tests) {
 			const test = {
@@ -332,6 +333,40 @@ describe("readJsonWithTemplate", () => {
 		expect(content).toEqual(template);
 	});
 
+	it("should be able to resolve the root directory with ~/", async () => {
+		const test = {
+			$import: "~/template.json",
+		};
+		const template = {
+			template: true,
+		};
+		await mockFs({
+			"/foo/bar/test.json": JSON.stringify(test),
+			"/foo/template.json": JSON.stringify(template),
+		});
+		const content = await readJsonWithTemplate(
+			path.join(mockDir, "foo/bar/test.json"),
+			path.join(mockDir, "foo"),
+		);
+		expect(content).toEqual(template);
+	});
+
+	it("should throw when using a path that starts with ~/ when no root dir is configured", async () => {
+		const test = {
+			$import: "~/foo/template.json",
+		};
+		await mockFs({
+			"/foo/bar/test.json": JSON.stringify(test),
+		});
+		await assertZWaveError(
+			() => readJsonWithTemplate(path.join(mockDir, "foo/bar/test.json")),
+			{
+				messageMatches: "import specifier cannot start with ~/",
+				errorCode: ZWaveErrorCodes.Config_Invalid,
+			},
+		);
+	});
+
 	it("should be able to resolve in-file selectors", async () => {
 		const test = {
 			$import: "template.json#sub",
@@ -532,5 +567,61 @@ describe("readJsonWithTemplate", () => {
 			path.join(mockDir, "test.json"),
 		);
 		expect(content).toEqual(expected);
+	});
+
+	it("referencing partial parameters works", async () => {
+		const test = {
+			paramInformation: {
+				1: {
+					$import: "template.json#paramInformation/1[0x01]",
+				},
+			},
+		};
+		const template = {
+			paramInformation: {
+				"1[0x01]": {
+					hello: "from the other side",
+				},
+			},
+		};
+		await mockFs({
+			"/test.json": JSON.stringify(test),
+			"/template.json": JSON.stringify(template),
+		});
+
+		const expected = {
+			paramInformation: {
+				1: {
+					hello: "from the other side",
+				},
+			},
+		};
+
+		const content = await readJsonWithTemplate(
+			path.join(mockDir, "test.json"),
+		);
+		expect(content).toEqual(expected);
+	});
+
+	it("should throw when the referenced file is outside the rootDir", async () => {
+		const rootDir = "root/test";
+		const test = {
+			$import: "../outside.json",
+		};
+		await mockFs({
+			[`/${rootDir}/test.json`]: JSON.stringify(test),
+		});
+
+		await assertZWaveError(
+			() =>
+				readJsonWithTemplate(
+					path.join(mockDir, rootDir, "test.json"),
+					path.join(mockDir, rootDir),
+				),
+			{
+				messageMatches: "outside of root",
+				errorCode: ZWaveErrorCodes.Config_Invalid,
+			},
+		);
 	});
 });

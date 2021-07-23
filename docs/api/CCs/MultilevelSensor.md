@@ -1,5 +1,7 @@
 # Multilevel Sensor CC
 
+?> CommandClass ID: `0x31`
+
 ## Multilevel Sensor CC methods
 
 ### `get`
@@ -8,6 +10,10 @@
 async get(): Promise<
 	(MultilevelSensorValue & { type: number }) | undefined
 >;
+
+async get(
+	sensorType: number,
+): Promise<MultilevelSensorValue | undefined>;
 
 async get(
 	sensorType: number,

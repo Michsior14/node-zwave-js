@@ -5,7 +5,12 @@ import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { pathExists, readFile } from "fs-extra";
 import JSON5 from "json5";
 import path from "path";
-import { configDir, hexKeyRegexNDigits, throwInvalidConfig } from "./utils";
+import {
+	configDir,
+	externalConfigDir,
+	hexKeyRegexNDigits,
+	throwInvalidConfig,
+} from "./utils";
 
 interface NotificationStateDefinition {
 	type: "state";
@@ -27,11 +32,17 @@ export type NotificationValueDefinition = (
 	parameter?: NotificationParameter;
 };
 
-const configPath = path.join(configDir, "notifications.json");
 export type NotificationMap = ReadonlyMap<number, Notification>;
 
 /** @internal */
-export async function loadNotificationsInternal(): Promise<NotificationMap> {
+export async function loadNotificationsInternal(
+	externalConfig?: boolean,
+): Promise<NotificationMap> {
+	const configPath = path.join(
+		(externalConfig && externalConfigDir()) || configDir,
+		"notifications.json",
+	);
+
 	if (!(await pathExists(configPath))) {
 		throw new ZWaveError(
 			"The config file does not exist!",
@@ -54,7 +65,7 @@ export async function loadNotificationsInternal(): Promise<NotificationMap> {
 			if (!hexKeyRegexNDigits.test(id)) {
 				throwInvalidConfig(
 					"notifications",
-					`found non-hex key "${id}" at the root`,
+					`found invalid key "${id}" at the root. Notifications must have lowercase hexadecimal IDs.`,
 				);
 			}
 			const idNum = parseInt(id.slice(2), 16);
@@ -88,9 +99,9 @@ export class Notification {
 				if (!hexKeyRegexNDigits.test(eventId)) {
 					throwInvalidConfig(
 						"notifications",
-						`found non-hex key "${eventId}" in notification ${num2hex(
+						`found invalid key "${eventId}" in notification ${num2hex(
 							id,
-						)}`,
+						)}. Notification events must have lowercase hexadecimal IDs.`,
 					);
 				}
 				const eventIdNum = parseInt(eventId.slice(2), 16);
@@ -152,7 +163,7 @@ export class NotificationVariable {
 			if (!hexKeyRegexNDigits.test(stateId)) {
 				throwInvalidConfig(
 					"notifications",
-					`found non-hex key "${stateId}" in notification variable ${this.name}`,
+					`found invalid key "${stateId}" in notification variable ${this.name}. Notification states must have lowercase hexadecimal IDs.`,
 				);
 			}
 			const stateIdNum = parseInt(stateId.slice(2), 16);

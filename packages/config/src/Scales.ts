@@ -5,15 +5,28 @@ import { isObject } from "alcalzone-shared/typeguards";
 import { pathExists, readFile } from "fs-extra";
 import JSON5 from "json5";
 import path from "path";
-import { configDir, hexKeyRegexNDigits, throwInvalidConfig } from "./utils";
+import {
+	configDir,
+	externalConfigDir,
+	hexKeyRegexNDigits,
+	throwInvalidConfig,
+} from "./utils";
 
-const configPath = path.join(configDir, "scales.json");
-
-export type ScaleGroup = ReadonlyMap<number, Scale>;
+export type ScaleGroup = ReadonlyMap<number, Scale> & {
+	/** The name of the scale group if it is named */
+	readonly name?: string;
+};
 export type NamedScalesGroupMap = ReadonlyMap<string, ScaleGroup>;
 
 /** @internal */
-export async function loadNamedScalesInternal(): Promise<NamedScalesGroupMap> {
+export async function loadNamedScalesInternal(
+	externalConfig?: boolean,
+): Promise<NamedScalesGroupMap> {
+	const configPath = path.join(
+		(externalConfig && externalConfigDir()) || configDir,
+		"scales.json",
+	);
+
 	if (!(await pathExists(configPath))) {
 		throw new ZWaveError(
 			"The named scales config file does not exist!",
@@ -31,7 +44,7 @@ export async function loadNamedScalesInternal(): Promise<NamedScalesGroupMap> {
 			);
 		}
 
-		const namedScales = new Map();
+		const namedScales = new Map<string, ScaleGroup>();
 		for (const [name, scales] of entries(definition)) {
 			if (!/[\w\d]+/.test(name)) {
 				throwInvalidConfig(
@@ -39,14 +52,18 @@ export async function loadNamedScalesInternal(): Promise<NamedScalesGroupMap> {
 					`Name ${name} contains other characters than letters and numbers`,
 				);
 			}
-			const named = new Map<number, Scale>();
+			const named: Map<number, Scale> & { name?: string } = new Map<
+				number,
+				Scale
+			>();
+			named.name = name;
 			for (const [key, scaleDefinition] of entries(
 				scales as JSONObject,
 			)) {
 				if (!hexKeyRegexNDigits.test(key)) {
 					throwInvalidConfig(
 						"named scales",
-						`found non-hex key "${key}" in the definition for "${name}"`,
+						`found invalid key "${key}" in the definition for "${name}". Scales must have lowercase hexadecimal IDs.`,
 					);
 				}
 				const keyNum = parseInt(key.slice(2), 16);

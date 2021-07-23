@@ -11,18 +11,28 @@ import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { pathExists, readFile } from "fs-extra";
 import JSON5 from "json5";
 import path from "path";
-import { configDir, hexKeyRegexNDigits, throwInvalidConfig } from "./utils";
-
-const configPath = path.join(configDir, "deviceClasses.json");
+import {
+	configDir,
+	externalConfigDir,
+	hexKeyRegexNDigits,
+	throwInvalidConfig,
+} from "./utils";
 
 export type BasicDeviceClassMap = ReadonlyMap<number, string>;
 export type GenericDeviceClassMap = ReadonlyMap<number, GenericDeviceClass>;
 
 /** @internal */
-export async function loadDeviceClassesInternal(): Promise<{
+export async function loadDeviceClassesInternal(
+	externalConfig?: boolean,
+): Promise<{
 	basicDeviceClasses: BasicDeviceClassMap;
 	genericDeviceClasses: GenericDeviceClassMap;
 }> {
+	const configPath = path.join(
+		(externalConfig && externalConfigDir()) || configDir,
+		"deviceClasses.json",
+	);
+
 	if (!(await pathExists(configPath))) {
 		throw new ZWaveError(
 			"The device classes config file does not exist!",
@@ -58,7 +68,7 @@ export async function loadDeviceClassesInternal(): Promise<{
 			if (!hexKeyRegexNDigits.test(key)) {
 				throwInvalidConfig(
 					"device classes",
-					`found non-hex key "${key}" in the basic device class definition`,
+					`found invalid key "${key}" in the basic device class definition. Device classes must have lowercase hexadecimal IDs.`,
 				);
 			}
 			const keyNum = parseInt(key.slice(2), 16);
@@ -70,7 +80,7 @@ export async function loadDeviceClassesInternal(): Promise<{
 			if (!hexKeyRegexNDigits.test(key)) {
 				throwInvalidConfig(
 					"device classes",
-					`found non-hex key "${key}" in the generic device class definition`,
+					`found invalid key "${key}" in the generic device class definition. Device classes must have lowercase hexadecimal IDs.`,
 				);
 			}
 			const keyNum = parseInt(key.slice(2), 16);
@@ -219,9 +229,11 @@ export class GenericDeviceClass {
 				if (!hexKeyRegexNDigits.test(specificKey))
 					throwInvalidConfig(
 						"device classes",
-						`found non-hex key "${specificKey}" in device class ${
+						`found invalid key "${specificKey}" in device class ${
 							this.label
-						} (${num2hex(this.key)})`,
+						} (${num2hex(
+							this.key,
+						)}). Device classes must have lowercase hexadecimal IDs.`,
 					);
 				const specificKeyNum = parseInt(specificKey.slice(2), 16);
 				specific.set(

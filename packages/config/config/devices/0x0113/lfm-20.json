@@ -1,9 +1,8 @@
-// Evolve LFM-20
 {
 	"manufacturer": "Evolve",
 	"manufacturerId": "0x0113",
 	"label": "LFM-20",
-	"description": "",
+	"description": "20A Relay Fixture Module",
 	"devices": [
 		{
 			"productType": "0x5246",
@@ -22,8 +21,6 @@
 			"maxValue": 255,
 			"defaultValue": 1,
 			"unsigned": true,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -36,5 +33,12 @@
 				}
 			]
 		}
+	},
+	"compat": {
+		"treatBasicSetAsEvent": true
+	},
+	"metadata": {
+		"inclusion": "Put your controller in INCLUDE mode, and double tap the button on the face of the device.",
+		"exclusion": "Put your controller in EXCLUDE mode, and double tap the button on the face of the device."
 	}
 }

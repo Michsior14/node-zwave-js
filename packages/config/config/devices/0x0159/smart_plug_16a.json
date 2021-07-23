@@ -1,5 +1,3 @@
-// Qubino Smart Plug 16A
-// Smart Plug
 {
 	"manufacturer": "Qubino",
 	"manufacturerId": "0x0159",
@@ -23,8 +21,6 @@
 			"minValue": 0,
 			"maxValue": 255,
 			"defaultValue": 255,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -53,9 +49,6 @@
 			"maxValue": 32535,
 			"defaultValue": 0,
 			"unit": "seconds",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Disabled",
@@ -70,9 +63,6 @@
 			"maxValue": 32535,
 			"defaultValue": 0,
 			"unit": "seconds",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true,
 			"options": [
 				{
 					"label": "Disabled",
@@ -87,8 +77,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -102,24 +90,7 @@
 			]
 		},
 		"30": {
-			"label": "Restore state ofter power failure",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 1,
-			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Restore state after power failure",
-					"value": 0
-				},
-				{
-					"label": "Do not restore state after power failure",
-					"value": 1
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_prev_off"
 		},
 		"40": {
 			"label": "Power Consumption (Watt) Reporting Threshold",
@@ -127,10 +98,7 @@
 			"valueSize": 1,
 			"minValue": 0,
 			"maxValue": 100,
-			"defaultValue": 20,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 20
 		},
 		"42": {
 			"label": "Power Consumption (Watt) Reporting Interval",
@@ -138,10 +106,7 @@
 			"valueSize": 2,
 			"minValue": 0,
 			"maxValue": 32535,
-			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 0
 		}
 	}
 }

@@ -1,14 +1,17 @@
-// Wenzhou MTLC Electric Appliances Co., Ltd. ZWN-RSM1-PLUS
-// Smart Relay Switch Module
 {
 	"manufacturer": "Wenzhou MTLC Electric Appliances Co., Ltd.",
 	"manufacturerId": "0x011a",
-	"label": "ZWN-RSM1-PLUS",
+	"label": "ZWN-RSM1 / ZWN-RSM1-PLUS",
 	"description": "Smart Relay Switch Module",
 	"devices": [
 		{
 			"productType": "0x0101",
 			"productId": "0x5605"
+		},
+		{
+			"productType": "0x0111",
+			"productId": "0x0605",
+			"zwaveAllianceId": [1777]
 		}
 	],
 	"firmwareVersion": {
@@ -34,10 +37,7 @@
 			"valueSize": 1,
 			"minValue": 0,
 			"maxValue": 1,
-			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 0
 		}
 	}
 }

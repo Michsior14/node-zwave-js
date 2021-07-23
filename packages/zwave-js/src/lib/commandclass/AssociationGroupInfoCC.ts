@@ -310,10 +310,11 @@ export class AssociationGroupInfoCCAPI extends PhysicalCCAPI {
 			endpoint: this.endpoint.index,
 			groupId,
 		});
-		const response = await this.driver.sendCommand<AssociationGroupInfoCCNameReport>(
-			cc,
-			this.commandOptions,
-		);
+		const response =
+			await this.driver.sendCommand<AssociationGroupInfoCCNameReport>(
+				cc,
+				this.commandOptions,
+			);
 		if (response) return response.name;
 	}
 
@@ -330,12 +331,15 @@ export class AssociationGroupInfoCCAPI extends PhysicalCCAPI {
 			groupId,
 			refreshCache,
 		});
-		const response = await this.driver.sendCommand<AssociationGroupInfoCCInfoReport>(
-			cc,
-			this.commandOptions,
-		);
-		if (response) {
-			// SDS13782: If List Mode is set to 0, the Group Count field MUST be set to 1.
+		const response =
+			await this.driver.sendCommand<AssociationGroupInfoCCInfoReport>(
+				cc,
+				this.commandOptions,
+			);
+		// SDS13782 says: If List Mode is set to 0, the Group Count field MUST be set to 1.
+		// But that's not always the case. Apparently some endpoints return 0 groups
+		// although they support AGI CC
+		if (response && response.groups.length > 0) {
 			const { groupId: _, ...info } = response.groups[0];
 			return {
 				hasDynamicInfo: response.hasDynamicInfo,
@@ -361,10 +365,11 @@ export class AssociationGroupInfoCCAPI extends PhysicalCCAPI {
 			groupId,
 			allowCache,
 		});
-		const response = await this.driver.sendCommand<AssociationGroupInfoCCCommandListReport>(
-			cc,
-			this.commandOptions,
-		);
+		const response =
+			await this.driver.sendCommand<AssociationGroupInfoCCCommandListReport>(
+				cc,
+				this.commandOptions,
+			);
 		if (response) return response.commands;
 	}
 }

@@ -1,5 +1,3 @@
-// Qubino ZMNHMD
-// Smart Leak Protector
 {
 	"manufacturer": "Qubino",
 	"manufacturerId": "0x0159",
@@ -22,8 +20,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -42,8 +38,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -62,8 +56,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -77,24 +69,7 @@
 			]
 		},
 		"30": {
-			"label": "State After Power Failure",
-			"valueSize": 1,
-			"minValue": 0,
-			"maxValue": 1,
-			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": false,
-			"options": [
-				{
-					"label": "Restore previous state",
-					"value": 0
-				},
-				{
-					"label": "Remain off",
-					"value": 1
-				}
-			]
+			"$import": "~/templates/master_template.json#state_after_power_failure_prev_off"
 		},
 		"48": {
 			"label": "Total Water Consumption",
@@ -102,20 +77,14 @@
 			"minValue": -2147483648,
 			"maxValue": 2147483647,
 			"defaultValue": 0,
-			"unit": "l",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unit": "l"
 		},
 		"50": {
 			"label": "Number of Liters per Pulse",
 			"valueSize": 2,
 			"minValue": 1,
 			"maxValue": 1000,
-			"defaultValue": 10,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 10
 		},
 		"51": {
 			"label": "Slow Leak: Threshold",
@@ -124,10 +93,7 @@
 			"minValue": 1,
 			"maxValue": 1000,
 			"defaultValue": 1,
-			"unit": "l",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unit": "l"
 		},
 		"52": {
 			"label": "Slow Leak: Time Interval",
@@ -135,10 +101,7 @@
 			"minValue": 1,
 			"maxValue": 24,
 			"defaultValue": 24,
-			"unit": "hours",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unit": "hours"
 		},
 		"60": {
 			"label": "Slow Leak: Close Valve on Alarm",
@@ -146,8 +109,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 1,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -166,10 +127,7 @@
 			"valueSize": 2,
 			"minValue": 1,
 			"maxValue": 1000,
-			"defaultValue": 150,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 150
 		},
 		"54": {
 			"label": "Medium Leak: Time Interval",
@@ -177,10 +135,7 @@
 			"minValue": 1,
 			"maxValue": 24,
 			"defaultValue": 6,
-			"unit": "hours",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unit": "hours"
 		},
 		"61": {
 			"label": "Medium Leak: Close Valve on Alarm",
@@ -188,8 +143,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -208,10 +161,7 @@
 			"valueSize": 2,
 			"minValue": 1,
 			"maxValue": 1000,
-			"defaultValue": 300,
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"defaultValue": 300
 		},
 		"56": {
 			"label": "Fast Leak: Time Interval",
@@ -219,10 +169,7 @@
 			"minValue": 1,
 			"maxValue": 24,
 			"defaultValue": 3,
-			"unit": "hours",
-			"readOnly": false,
-			"writeOnly": false,
-			"allowManualEntry": true
+			"unit": "hours"
 		},
 		"62": {
 			"label": "Fast Leak: Close Valve on Alarm",
@@ -230,8 +177,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{
@@ -250,8 +195,6 @@
 			"minValue": 0,
 			"maxValue": 1,
 			"defaultValue": 0,
-			"readOnly": false,
-			"writeOnly": false,
 			"allowManualEntry": false,
 			"options": [
 				{

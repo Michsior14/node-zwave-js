@@ -10,27 +10,17 @@ Please use only **American English**.
 
 ## Comments
 
-Our device files begin with a series of two comments that describe the manufacturer/brand, label and description.
+Our device files are parsed as JSON5 and may contain comments. Comments may (and should) also be used to explain parameters that were omitted on purpose or to explain the necessity for a compat flag. Example:
 
 ```json
-// HomeSeer Technologies HS-PA100+
-// Appliance Module
 {
-	"manufacturer": "HomeSeer Technologies",
-	"manufacturerId": "0x000c",
-	"label": "HS-PA100+",
-	"description": "Appliance Module",
-	"devices": [
-		{
-			"productType": "0x4447",
-			"productId": "0x3031"
-		}
-	]
 	// ...
+	"compat": {
+		// The device is a Binary Sensor, but uses Basic Sets to report its status
+		"enableBasicSetMapping": true
+	}
 }
 ```
-
-Comments may (and should) also be used to explain parameters that were omitted on purpose or to explain the necessity for a compat flag.
 
 ## Manufacturer/Brand
 
@@ -39,9 +29,6 @@ Sometimes a manufacturer makes a device for another company. The field `manufact
 > [!WARNING] Please ensure the manufacturer exactly matches other devices from that same manufacturer. Failing to do so will result in duplicate but slightly different entries in the device database website.
 
 ```diff
--	// Assa Abloy YDM3109
-+	// Yale YDM3109
-	// Smart Door Lock
 	{
 -		"manufacturer": "Assa Abloy",
 +		"manufacturer": "Yale",
@@ -66,10 +53,9 @@ These should generally conform to the **model number** (or **SKU**) of the devic
 
 These should generally conform to the **name** under which the device is sold. This should not just mirror the label, unless the device is actually being marketed as such. Remove the manufacturer name from the description, if present. For example:
 
+?> Device descriptions should be **Title Case**.
+
 ```diff
-	// Yale YDM3109
--	// Yale Smart Door Lock
-+	// Smart Door Lock
 	{
 		"manufacturer": "Yale",
 		"manufacturerId": "0x0129",
@@ -79,15 +65,13 @@ These should generally conform to the **name** under which the device is sold. T
 		"devices": [
 ```
 
-Device descriptions should be **Title Case**.
-
 ## Association Groups
 
 The association group labels should be clear and concise. They should clearly explain what the association group is for, e.g. `Multilevel Sensor Reports`. Avoid generic names like `Group #1`.
 
 The primary reporting group (usually group 1 for Z-Wave Plus) **must** be called `Lifeline`.
 
-Labels should be **Title Case**.
+?> Labels should be **Title Case**.
 
 > [!NOTE] Association Groups should only be defined if necessary. Refer to the [property definition](config-files/file-format.md#associations) to figure out when that is the case.
 
@@ -99,6 +83,8 @@ Shorten labels wherever possible. E.g. `Threshold at which to send a battery rep
 
 Labels should be clear and concise. They should clearly explain what the parameter does while avoiding unnnecessary technical jargon:
 
+?> Labels should be **Title Case**.
+
 ```diff
 "paramInformation": {
 	"4": {
@@ -108,23 +94,18 @@ Labels should be clear and concise. They should clearly explain what the paramet
 		"minValue": 0,
 		"maxValue": 99,
 		"defaultValue": 0,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	}
 }
 ```
-
-Labels should be **Title Case**.
 
 ### Parameter Descriptions
 
 Parameter descriptions can be helpful, but they clutter UIs. As such, unnecessary descriptions that merely restate the label **must** be removed. Additionally, information like units or available ranges should be removed as that information is provided to UIs through other properties.
 
-As a rule of thumb: Only include a description if it is necessary, helpful, and adds significant value.
+?> Descriptions should be **Sentence case**.
 
-Descriptions should be **Sentence case**.
+As a rule of thumb: Only include a description if it is necessary, helpful, and adds significant value.
 
 **Exception 1:** Sometimes a parameter provides for a range of 0-99, or 255 for the last value (or similar). This could be confusing to users because 100-254 are not valid values. In such circumstances the allowable range _should_ be explained, in conjunction with a predefined option as a hint (described below).
 
@@ -138,9 +119,6 @@ Descriptions should be **Sentence case**.
 		"maxValue": 255,
 		"defaultValue": 30,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "Dimmer default",
@@ -163,8 +141,6 @@ Descriptions should be **Sentence case**.
 		"maxValue": 255,
 		"defaultValue": 30,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false
 	}
 }
@@ -174,9 +150,9 @@ Descriptions should be **Sentence case**.
 
 Whenever possible we aim to provide a list of pre-defined options to be displayed in the UI. When starting with a device file from another project, this may require some detective work. A parameter with a range of 0-1 or 0-5 usually has a set number of options that can be presented.
 
-> [!NOTE] If the predefined options are the **only** possible values, manual entry should be disabled. To do that, set `allowManualEntry` to `false`.
+?> Option labels should be **Sentence case**.
 
-Option labels should be **Sentence case**.
+> [!NOTE] If the predefined options are the **only** possible values, manual entry should be disabled. To do that, set `allowManualEntry` to `false`.
 
 ```json
 "paramInformation": {
@@ -187,8 +163,6 @@ Option labels should be **Sentence case**.
 		"maxValue": 1,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
 		"allowManualEntry": false,
 		"options": [
 			{
@@ -220,9 +194,6 @@ For example:
 		"maxValue": 255,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "Dimmer default",
@@ -244,9 +215,6 @@ or
 		"maxValue": 99,
 		"defaultValue": 0,
 		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true,
 		"options": [
 			{
 				"label": "Disable",
@@ -292,10 +260,7 @@ Some devices use multiples of the base units - these should be represented as a 
 		"minValue": 0,
 		"maxValue": 254,
 		"defaultValue": 0,
-		"unsigned": true,
-		"readOnly": false,
-		"writeOnly": false,
-		"allowManualEntry": true
+		"unsigned": true
 	}
 ```
 
@@ -306,7 +271,7 @@ Some devices use multiples of the base units - these should be represented as a 
 
 ### Read/Write Only
 
-While somewhat rare, sometimes parameters can only be read or written. Typically, the description or manual would say so. If applicable, change the appropriate definition to true.
+While somewhat rare, sometimes parameters can only be read or written. Typically, the description or manual would say so. If applicable, add the appropriate field `readOnly` or `writeOnly`.
 
 ```diff
 	"1": {
@@ -317,9 +282,6 @@ While somewhat rare, sometimes parameters can only be read or written. Typically
 		"maxValue": 254,
 		"defaultValue": 0,
 		"unsigned": true,
--		"readOnly": false,
-+		"readOnly": true,
-		"writeOnly": false,
-		"allowManualEntry": true
++		"readOnly": true
 	}
 ```
